@@ -2,7 +2,6 @@
 const puppeteer = require('puppeteer')
 const firebase = require('../firebase')
 const fs = require('fs')
-const slugify = require('slugify')
 const db = firebase.firestore()
 const bucket = firebase.storage().bucket('getdersim-media')
 const { promisify } = require('util')
