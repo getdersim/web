@@ -1,9 +1,14 @@
 // This file contains firestore hooks.
-const firebase = require('../firebase')
-
 const puppeteer = require('puppeteer')
+const firebase = require('../firebase')
 const fs = require('fs')
+const slugify = require('slugify')
+const db = firebase.firestore()
+const bucket = firebase.storage().bucket('getdersim-media')
+const { promisify } = require('util')
+const writeFile = promisify(fs.writeFile)
 
+// Generate gif from given pdf url
 const generateGIF = url => {
   return new Promise(async (resolve, reject) => {
     const browser = await puppeteer.launch({
@@ -18,12 +23,14 @@ const generateGIF = url => {
       var buffer = Buffer.from(data, 'base64')
       let d = new Date()
       let filename = `${d.valueOf()}.gif`
-      fs.writeFile(filename, buffer)
+      writeFile(filename, buffer)
       await browser.close()
       resolve(filename)
     })
   })
 }
+
+// Generate thumbnail from given pdf url
 const generateThumbnail = url => {
   return new Promise(async (resolve, reject) => {
     const browser = await puppeteer.launch({
@@ -38,14 +45,75 @@ const generateThumbnail = url => {
       var buffer = Buffer.from(data, 'base64')
       let d = new Date()
       let filename = `${d.valueOf()}.png`
-      fs.writeFile(filename, buffer)
+      writeFile(filename, buffer)
       await browser.close()
       resolve(filename)
     })
   })
 }
 
-// generateThumbnail('https://firebasestorage.googleapis.com/v0/b/getdersim.appspot.com/o/document%2FAlx6G918rubxhj6yegR6WlFWiay1%2F1516504221992.pdf?alt=media&token=cafc38ba-e30c-4da7-8715-fc026d649b41').then(img => console.log(img))
-//
-// generateGIF('https://firebasestorage.googleapis.com/v0/b/getdersim.appspot.com/o/document%2FAlx6G918rubxhj6yegR6WlFWiay1%2F1516504221992.pdf?alt=media&token=cafc38ba-e30c-4da7-8715-fc026d649b41')
-//   .then(filename => console.log(filename))
+const process = (docs, i = 0) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let doc = docs[i]
+        let url = doc.doc.url
+        let thumbnailFile = await generateThumbnail(url)
+        let gifFile = await generateGIF(url)
+        let uploadedThumbnail = await bucket.upload(thumbnailFile)
+        let [thumbnailURL] = await bucket.file(thumbnailFile).getSignedUrl({
+            action: 'read',
+            expires: '03-17-2100',
+          })
+        console.log(doc.title, 'thumbnail üretildi');
+        let uploadedGIF = await bucket.upload(gifFile)
+        let [gifURL] = await bucket.file(gifFile).getSignedUrl({
+            action: 'read',
+            expires: '03-17-2100',
+          })
+        // remove temp files.
+        fs.unlinkSync(thumbnailFile)
+        fs.unlinkSync(gifFile)
+        let result = await db.doc(`document/${doc.slug}`).update({
+          thumbnail: {url: thumbnailURL, id: thumbnailFile},
+          gif: {url: gifURL, id: gifFile},
+          hasPreview: true
+        })
+        i++
+        if (docs.length > i) {
+          await process(docs, i)
+        } else {
+          resolve(true)
+        }
+      } catch (e) {
+        reject(e)
+      }
+    });
+}
+
+db.collection('document')
+  .onSnapshot(async snapshot => {
+    let toBeUpdated = []
+    toBeUpdated = snapshot.docChanges.map(change => {
+      let data = change.doc.data()
+      if ((change.type === 'added' || change.type === 'modified') && (!data.gif && !data.thumbnail)) {
+        return data
+      } else if (change.type === 'removed') {
+        try {
+          await bucket.file(data.gif.id).delete()
+          await bucket.file(data.thumbnail.id).delete()
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    })
+    toBeUpdated = toBeUpdated.filter(n => n)
+    console.log(toBeUpdated);
+    if (toBeUpdated.length > 0) {
+      try {
+        await process(toBeUpdated)
+        console.log('MEDIA GENERATE SUCCESS.');
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  })

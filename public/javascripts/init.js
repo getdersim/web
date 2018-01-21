@@ -164,7 +164,8 @@ $(document).ready(() => {
         uid,
         displayName,
         photoURL,
-        userSlug
+        userSlug,
+        hasPreview: false
       });
       doc = null;
     }
