@@ -11,7 +11,7 @@ const generateGIF = url => {
       headless: true
     })
     const page = await browser.newPage()
-    await page.goto(`https://gifi.cagatay.me/?pdf=${url}`)
+    await page.goto(`https://media.ders.im/?pdf=${url}`)
 
     page.on('console', async msg => {
       var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
@@ -31,7 +31,7 @@ const generateThumbnail = url => {
       headless: true
     })
     const page = await browser.newPage()
-    await page.goto(`http://localhost:5000/thumbnail.html?pdf=${url}`)
+    await page.goto(`https://media.ders.im/thumbnail.html?pdf=${url}`)
 
     page.on('console', async msg => {
       var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
