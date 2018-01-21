@@ -1,0 +1,17 @@
+#settings.modal.bottom-sheet
+  .modal-content
+    if user
+      h5 Merhaba 
+        b.name #{user.name}
+    else
+      h5 Merhaba 
+        b.name
+    p Ders.im'de ders materyali paylaşarak, sorulan soruları yanıtlayarak kredi kazanabilir, bu kredileri indirim kuponu ve ödülleri alırken kullanabilirsiniz.
+    .collection
+      a.collection-item.blue-text.text-darken-2.center-align.modalLink Profil
+        | 
+        i.fa.fa-id-badge(aria-hidden='true')
+      a.collection-item.blue-text.center-align.modal-trigger.modalLink(href="#uploadModal") Ders içeriği yükle
+      a.collection-item.red-text.text-lighten-1.center-align.modalLink.doLogout Çıkış yap 
+        |
+        i.fa.fa-sign-out.red-text.text-lighten-1(aria-hidden='true')

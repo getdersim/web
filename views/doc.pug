@@ -1,0 +1,33 @@
+extends layout
+
+block head
+  title= title
+
+block content
+  include components/navigation.pug
+  .container
+    .row(style="margin-top:20px")
+      .col.s12.m8
+        if user
+          embed(src="http://members.comu.edu.tr/boraugurlu/courses/bm223/content/week11/hafta11.pdf" width="100%" style="height:500px" type='application/pdf')
+        else
+          img(style="width:100%" src='http://localhost:3000/demo.gif')
+              
+      .col.s12.m4(style="margin-top:-7px")
+        ul.collection.with-header
+          li.collection-header
+            h1(style="font-size:1.5em;margin:0px") #{materyal.subject}
+          li.collection-item
+            div.collection-item
+              span.badge.hoverable 50
+              | Kredi
+
+          li.collection-item.avatar
+            i.material-icons.circle.amber.accent-2.hoverable location_on
+            p Bilgisayar mühendisliği veri yapıları 2.sınıf konusu olan ikili arama ağaçları ders notları
+
+                        
+    include components/login.pug
+    include components/settings.pug
+    include components/fab.pug
+           

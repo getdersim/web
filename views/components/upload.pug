@@ -1,0 +1,29 @@
+#uploadModal.modal.modal-fixed-footer
+  .modal-content
+    h4 Ders Dökümanı Paylaş
+    p Yeni bir döküman yayınlamaya karar verdin dostum, katkın için teşekkür ederiz.
+    .row
+      form.col.s12
+        .row
+          .input-field.col.s12
+            input#title.validate(placeholder='Döküman başlığınız', type='text' required="true")
+            label(for='title') Başlık
+        .row
+          .input-field.col.s12
+            input#description.validate(placeholder='Döküman açıklamanız', type='text' required="true")
+            label(for='description') Açıklama
+        .row
+          .input-field.col.s12
+            .file-field.input-field
+              .btn
+                span Döküman (PDF)
+                input#file(type='file', multiple='false' required="true" accept=".pdf, application/pdf")
+              .file-path-wrapper
+                input.file-path.validate(type='text', placeholder='Bir adet PDF yükleyin.')
+          .row#uploadedDocument
+            
+
+  .modal-footer
+      a.waves-effect.waves-blue.btn.modal-action.modal-close.disabled.publishDocument
+        i.material-icons.right done_all
+        | Yayınla

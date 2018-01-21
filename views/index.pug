@@ -1,0 +1,129 @@
+extends layout
+
+block head
+  title= title
+
+block content
+  include components/navigation.pug
+  .container
+    h4#populer.col.s12 Popüler ders materyalleri
+    h4#ders-notlari.col.s12 Ders notları
+    h4#cikmis-sorular.col.s12 Çıkmış sorular
+    .row
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-yellow
+            img.activator(src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Binary_tree.svg/300px-Binary_tree.svg.png')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | İkili arama ağaçları - Veri Yapıları
+              i.material-icons.right more_vert
+            p
+              a(href='/dokuman/demo') Detayına git...
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | İkili arama ağaçları - Veri Yapıları
+              i.material-icons.right close
+            p
+              | Bilgisayar mühendisliği veri yapıları dersi ikili arama ağaçları ders notu
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-orange
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-purple
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-light
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-light
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-light
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+      .col.s12.m4
+        .card.z-depth-3.small
+          .card-image.waves-effect.waves-block.waves-light
+            img.activator(src='http://next.materializecss.com/images/office.jpg')
+          .card-content
+            span.card-title.activator.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right more_vert
+            p
+              a(href='#') This is a link
+          .card-reveal
+            span.card-title.grey-text.text-darken-4
+              | Card Title
+              i.material-icons.right close
+            p
+              | Here is some more information about this product that is only revealed once clicked on.
+
+    include components/login.pug
+    include components/settings.pug
+    include components/fab.pug
+           

@@ -1,0 +1,14 @@
+#login.modal.bottom-sheet
+  .modal-content
+    h4 Giriş Yap
+    p Ders.im'e sosyal medya hesaplarınız veya Gmail hesabınız ile giriş yapabilirsiniz, tamamen ücretsizdir.
+    .collection
+      a.collection-item.blue-text.text-darken-2.center-align.doLogin.modalLink(data-provider="facebook") Facebook ile giriş yap 
+        | 
+        i.fa.fa-facebook(aria-hidden='true')
+      a.collection-item.blue-text.center-align.doLogin.modalLink(data-provider="twitter") Twitter ile giriş yap 
+        |
+        i.fa.fa-twitter(aria-hidden='true')
+      a.collection-item.red-text.text-lighten-1.center-align.doLogin.modalLink(data-provider="google") Gmail ile giriş yap 
+        |
+        i.fa.fa-google.red-text.text-lighten-1(aria-hidden='true')

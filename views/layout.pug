@@ -1,0 +1,57 @@
+doctype html
+html(lang='tr')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no')
+
+    meta(name='apple-mobile-web-app-capable', content='yes')
+    meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
+    meta(name='apple-mobile-web-app-status-bar-style', content='#29b6f6')
+    link(rel='apple-touch-startup-image', href='/images/logo.png')
+    meta(name='theme-color', content='#29b6f6')
+    meta(name='google' content='notranslate')
+    //- link(rel='apple-touch-icon', sizes='180x180', href='/static/favicons/apple-touch-icon.png')
+    //- link(rel='icon', type='image/png', sizes='32x32', href='/static/favicons/favicon-32x32.png')
+    //- link(rel='icon', type='image/png', sizes='16x16', href='/static/favicons/favicon-16x16.png')
+    link(rel='manifest', href='/manifest.json')
+    //- link(rel='mask-icon', href='/static/favicons/safari-pinned-tab.svg', color='#29b6f6')
+    meta(name='apple-mobile-web-app-title', content='Ders.im')
+    meta(name='application-name', content='Ders.im')
+    meta(name='theme-color', content='#29b6f6')
+    // Schema.org for Google
+    meta(itemprop='name', content='Ders.im')
+    meta(itemprop='description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+    meta(name='image', itemprop='image', content='/images/logo.png')
+    meta(name='twitter:card', content='summary_large_image')
+    meta(name='twitter:title', content='Ders.im')
+    meta(name='twitter:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+    meta(name='twitter:site', content='@getdersim')
+    meta(name='twitter:creator', content='@cagataycali')
+    meta(name='twitter:image', content='/images/logo.png')
+    // Open Graph general (Facebook, Pinterest & Google+)
+    meta(name='og:title', content='Ders.im')
+    meta(name='og:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+    meta(name='og:image', content='/images/logo.png')
+    meta(name='og:url', content='https://ders.im')
+    meta(name='og:site_name', content='Ders.im')
+    meta(name='og:locale', content='tr')
+    meta(name='og:type', content='website')
+
+
+
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+    link(href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css', rel='stylesheet')
+    link(href='/stylesheets/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
+    link(href='/stylesheets/style.css', type='text/css', rel='stylesheet', media='screen,projection')
+    block head
+      title Ders.im
+  body
+    block content
+    script(type='text/javascript', src='/javascripts/slugify.js')
+    script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.2/firebase.js')
+    script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js')
+    script(type='text/javascript', src='/javascripts/jquery-3.2.1.min.js')
+    script(type='text/javascript', src='/javascripts/materialize.js')
+    script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/zooming/1.2.6/zooming.min.js')
+    script(type='text/javascript', src='/javascripts/init.js')
+  include components/upload.pug
