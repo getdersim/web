@@ -1,29 +1,72 @@
 const express = require('express')
 const router = express.Router()
 const firebase = require('../firebase')
+const db = firebase.firestore()
 
-/* GET home page. */
-router.get('/', (req, res, next) => {
+router.get('/', (req, res) => {
   const user = req.session.decodedToken
-  res.render('index', { title: 'Ders.im | Ana sayfa', user, home: true })
+  db.collection('document')
+  .orderBy('date', 'desc')
+  .get()
+  .then(docs => {
+    docs = docs.docs.map(doc => doc.data())
+    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, home: true })
+  })
+  .catch(() => {
+    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], home: true })
+  })
 })
 
-/* GET home page. */
-router.get('/dokuman/:slug', (req, res, next) => {
-  const user = req.session.decodedToken
-  const materyal = {
-    department: 'Bilgisayar Mühendisliği',
-    lesson: 'Veri Yapıları',
-    subject: 'İkili Arama Ağaçları (BST)'
+/* GET detail page. */
+router.get('/dokuman/:slug?', (req, res) => {
+  if (!req.params.slug) {
+    res.redirect(301, '/')
   }
-  // Call firebase things in tha here.
+  const user = req.session.decodedToken
+  const slug = req.params.slug
+  db.doc(`document/${slug}`)
+    .get()
+    .then(result => {
+      const data = result.data()
+      let isOwner = false
+      if ((user && data.uid === user.uid) || data.isAdmin) {
+        isOwner = true
+      }
+      let breadcrumbs = []
+      breadcrumbs.push({label: 'Ana Sayfa', url: '/'})
+      breadcrumbs.push({label: data.title, url: `/dokuman/${data.slug}`})
+      res.render('doc', { title: `Ders.im | ${data.title}`, user, doc: data, breadcrumbs, isOwner })
+    })
+    .catch(err => {
+      console.log(err) // render 404
+      res.status(404).end('Döküman mevcut değil.')
+    })
+})
 
-  res.render('doc', {
-    title: 'Ders.im | Döküman',
-    home: false,
-    user,
-    materyal
-  })
+router.get('/@:slug?', (req, res) => {
+  if (!req.params.slug) {
+    res.redirect(301, '/')
+  }
+
+  const user = req.session.decodedToken
+
+  db.doc(`user/${req.params.slug}`)
+    .get()
+    .then(result => result.data())
+    .then(data => {
+      console.log(user, data);
+      let isOwner = false
+      if ((user && data.uid === user.uid) || data.isAdmin) {
+        isOwner = true
+      }
+      res.render('profile', { title: `Ders.im | ${data.displayName}`, user, data })
+    })
+    .catch(err => {
+      console.log('Kullanıcı mevcut değil', req.params.slug)
+      res.redirect(301, '/')
+    })
+
+  // console.log(req.params.slug)
 })
 
 module.exports = router

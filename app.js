@@ -10,6 +10,12 @@ const index = require('./routes/index')
 const firebase = require('./firebase')
 const hooks = require('./hooks/index')
 const app = express()
+const moment = require('moment')
+require('moment-timezone')
+require('moment/locale/tr')
+
+moment.globalLocale = 'tr'
+app.locals.moment = moment
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')

@@ -70,8 +70,9 @@ $(document).ready(() => {
           date = `${date}.pdf`;
           var pdfDocRef = storageRef.child(date);
 
-          pdfDocRef.putString(e.target.result, 'data_url').then(function(snapshot) {
-            console.log('Uploaded a data_url string!');
+          let uploadStatus = pdfDocRef.putString(e.target.result, 'data_url')
+
+          uploadStatus.then(function(snapshot) {
             M.toast({html: `${theFile.name} başarıyla yüklendi.`, classes: 'rounded'});
 
             storageRef.child(date).getDownloadURL().then(function(url) {
@@ -86,6 +87,25 @@ $(document).ready(() => {
             console.log(error);
             M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok :)`, classes: 'rounded'});
           })
+
+          uploadStatus.on('state_changed', function(snapshot){
+              // Observe state change events such as progress, pause, and resume
+              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              M.toast({html: `Dökümanın %${progress.toFixed(2)} kadarı yüklendi.`, classes: 'rounded'});
+              switch (snapshot.state) {
+                case firebase.storage.TaskState.PAUSED: // or 'paused'
+                  M.toast({html: `Dökümanın %${Math.round(progress)}'si yüklenmişken durduruldu`, classes: 'rounded'});
+                  break;
+                case firebase.storage.TaskState.RUNNING: // or 'running'
+                  console.log('Upload is running');
+                  break;
+              }
+            }, function(error) {
+              // Handle unsuccessful uploads
+            }, function() {
+              console.log('Upload done!');
+            });
 
 
           const content = `

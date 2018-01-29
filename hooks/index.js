@@ -89,6 +89,10 @@ const process = (docs, i = 0) => {
     });
 }
 
+const removeContent = id => {
+  bucket.file(id).delete().then(() => console.log('Uploaded content deleted.')).catch(err => console.log(err))
+}
+
 db.collection('document')
   .onSnapshot(async snapshot => {
     let toBeUpdated = []
@@ -98,15 +102,15 @@ db.collection('document')
         return data
       } else if (change.type === 'removed') {
         try {
-          await bucket.file(data.gif.id).delete()
-          await bucket.file(data.thumbnail.id).delete()
+          console.log('Removed one..');
+          removeContent(data.gif.id)
+          removeContent(data.thumbnail.id)
         } catch (e) {
           console.log(e);
         }
       }
     })
     toBeUpdated = toBeUpdated.filter(n => n)
-    console.log(toBeUpdated);
     if (toBeUpdated.length > 0) {
       try {
         await process(toBeUpdated)

@@ -13,21 +13,21 @@ nav.nav-extended.light-blue.lighten-1(role='navigation')
           img.modal-trigger.circle(href="#settings" src=user.picture, alt='' style="position:absolute;margin-top:15px;margin-left:-15px;width:2.3em;cursor:pointer;")
         else
           i.modal-trigger.material-icons.account-icon(href='#login') account_circle        
-  if home
-    .nav-content.container
-      ul.tabs.tabs-transparent
-        li.tab
-          a.active(href='#populer') Popüler
-        li.tab
-          a(href='#ders-notlari') Ders Notları
-        li.tab
-          a(href='#cikmis-sorular') Çıkmış Sorular
-  else if breadcrumbs && breadcrumbs.length > 0         
-    .nav-wrapper.container
-      .col.s12
-        each breadcrumb in breadcrumbs
-          if breadcrumb.isLast
-            a.breadcrumb.hide-on-small-only(href=breadcrumb.url) #{breadcrumb.label}
-          else
-            a.breadcrumb(href=breadcrumb.url) #{breadcrumb.label}
-          
+  //- if home
+  //-   .nav-content.container
+  //-     ul.tabs.tabs-transparent
+  //-       li.tab
+  //-         a.active(href='#populer') Popüler
+  //-       li.tab
+  //-         a(href='#ders-notlari') Ders Notları
+  //-       li.tab
+  //-         a(href='#cikmis-sorular') Çıkmış Sorular
+  //- else if breadcrumbs && breadcrumbs.length > 0         
+  //-   .nav-wrapper.container
+  //-     .col.s12
+  //-       each breadcrumb in breadcrumbs
+  //-         if breadcrumb.isLast
+  //-           a.breadcrumb.hide-on-small-only(href=breadcrumb.url) #{breadcrumb.label}
+  //-         else
+  //-           a.breadcrumb(href=breadcrumb.url) #{breadcrumb.label}
+  //- 
