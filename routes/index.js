@@ -32,10 +32,7 @@ router.get('/dokuman/:slug?', (req, res) => {
       if ((user && data.uid === user.uid) || data.isAdmin) {
         isOwner = true
       }
-      let breadcrumbs = []
-      breadcrumbs.push({label: 'Ana Sayfa', url: '/'})
-      breadcrumbs.push({label: data.title, url: `/dokuman/${data.slug}`})
-      res.render('doc', { title: `Ders.im | ${data.title}`, user, doc: data, breadcrumbs, isOwner })
+      res.render('doc', { title: `Ders.im | ${data.title}`, user, doc: data, isOwner })
     })
     .catch(err => {
       console.log(err) // render 404

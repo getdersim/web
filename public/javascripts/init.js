@@ -150,6 +150,18 @@ $(document).ready(() => {
     });
   });
 
+  $(document).on('click', '.deleteDocument', function() {
+    db.doc(`document/${document.location.pathname.split('/').pop()}`)
+      .delete()
+      .then(function() {
+        M.toast({html: `Döküman başarıyla silindi.`, classes: 'rounded'})
+      })
+      .catch(function(error) {
+        M.toast({html: `Döküman silinirken hata oluştu.`, classes: 'rounded'})
+        console.log(error)
+      })
+  });
+
   $(document).on('click', '.publishDocument', function() {
     const title = $('#title').val();
     const description = $('#description').val();

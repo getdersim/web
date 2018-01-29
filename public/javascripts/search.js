@@ -21,7 +21,7 @@ function app (opts) {
     appId: opts.appId,
     apiKey: opts.apiKey,
     indexName: opts.indexName,
-    urlSync: true,
+    urlSync: false,
     searchFunction: opts.searchFunction
   })
 

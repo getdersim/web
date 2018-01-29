@@ -2,6 +2,7 @@ extends layout
 
 block head
   title= title
+  link(href='/stylesheets/instantsearch.css', type='text/css', rel='stylesheet', media='screen,projection')
 
 block content
   include components/navigation.pug
@@ -9,15 +10,12 @@ block content
   
   .container
     h5.col.s12 Son yüklenen ders materyalleri
-    //- h4#ders-notlari.col.s12 Ders notları
-    //- h4#cikmis-sorular.col.s12 Çıkmış sorular
     .row
-    
       each doc in docs
         if doc.hasPreview == true
           .col.s12.m4
             .card.z-depth-3.medium.sticky-action
-              .card-image.waves-effect.waves-block.waves-yellow
+              .card-image.waves-effect.waves-block.waves-blue
                 img.activator(src=doc.thumbnail.url alt=doc.description)
               .card-content
                 h2.card-title.activator.grey-text.text-darken-4(style="margin-top:-15px")
@@ -35,4 +33,7 @@ block content
     include components/login.pug
     include components/settings.pug
     include components/fab.pug
+    
+block javascripts
+  script(type='text/javascript', src='/javascripts/search.js')    
            

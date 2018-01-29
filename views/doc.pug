@@ -28,6 +28,18 @@ block content
             a(href="/@" + doc.userSlug)
               img.circle.hoverable(src=doc.photoURL)
             p #{doc.displayName}
+          li.collection-item.avatar(style="padding: 5px")
+            .fb-like(data-href='http://localhost:3000/dokuman/' + doc.slug, data-layout='standard', data-action='recommend', data-size='large', data-show-faces='true', data-share='true')
+
+          if (user && user.isAdmin) || isOwner
+            li.collection-item.avatar
+              i.material-icons.circle.blue.lighten-2.hoverable build
+              p
+                |
+                a.waves-effect.waves-light.btn.red.deleteDocument
+                  i.material-icons.right delete
+                  | Kaldır  
+    .fb-comments(data-href='http://localhost:3000/dokuman/' + doc.slug, data-numposts='5' width='100%')
 
                         
     include components/login.pug

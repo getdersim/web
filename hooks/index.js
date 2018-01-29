@@ -51,42 +51,42 @@ const generateThumbnail = url => {
   })
 }
 
-const process = (docs, i = 0) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let doc = docs[i]
-        let url = doc.doc.url
-        let thumbnailFile = await generateThumbnail(url)
-        let gifFile = await generateGIF(url)
-        let uploadedThumbnail = await bucket.upload(thumbnailFile)
-        let [thumbnailURL] = await bucket.file(thumbnailFile).getSignedUrl({
-            action: 'read',
-            expires: '03-17-2100',
-          })
-        console.log(doc.title, 'thumbnail üretildi');
-        let uploadedGIF = await bucket.upload(gifFile)
-        let [gifURL] = await bucket.file(gifFile).getSignedUrl({
-            action: 'read',
-            expires: '03-17-2100',
-          })
-        // remove temp files.
-        fs.unlinkSync(thumbnailFile)
-        fs.unlinkSync(gifFile)
-        let result = await db.doc(`document/${doc.slug}`).update({
-          thumbnail: {url: thumbnailURL, id: thumbnailFile},
-          gif: {url: gifURL, id: gifFile},
-          hasPreview: true
-        })
-        i++
-        if (docs.length > i) {
-          await process(docs, i)
-        } else {
-          resolve(true)
-        }
-      } catch (e) {
-        reject(e)
+const process = (docs, i = 0) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let doc = docs[i]
+      let url = doc.doc.url
+      let thumbnailFile = await generateThumbnail(url)
+      let gifFile = await generateGIF(url)
+      await bucket.upload(thumbnailFile)
+      let [thumbnailURL] = await bucket.file(thumbnailFile).getSignedUrl({
+        action: 'read',
+        expires: '03-17-2100'
+      })
+      console.log(doc.title, 'thumbnail üretildi')
+      await bucket.upload(gifFile)
+      let [gifURL] = await bucket.file(gifFile).getSignedUrl({
+        action: 'read',
+        expires: '03-17-2100'
+      })
+      // remove temp files.
+      fs.unlinkSync(thumbnailFile)
+      fs.unlinkSync(gifFile)
+      await db.doc(`document/${doc.slug}`).update({
+        thumbnail: {url: thumbnailURL, id: thumbnailFile},
+        gif: {url: gifURL, id: gifFile},
+        hasPreview: true
+      })
+      i++
+      if (docs.length > i) {
+        await process(docs, i)
+      } else {
+        resolve(true)
       }
-    });
+    } catch (e) {
+      reject(e)
+    }
+  })
 }
 
 const removeContent = id => {
@@ -98,15 +98,15 @@ db.collection('document')
     let toBeUpdated = []
     toBeUpdated = snapshot.docChanges.map(change => {
       let data = change.doc.data()
-      if ((change.type === 'added' || change.type === 'modified') && (!data.gif && !data.thumbnail)) {
+      if ((change.type === 'added' || change.type === 'modified') && (!data.gif && !data.thumbnail)) {
         return data
       } else if (change.type === 'removed') {
         try {
-          console.log('Removed one..');
+          console.log('Removed one..')
           removeContent(data.gif.id)
           removeContent(data.thumbnail.id)
         } catch (e) {
-          console.log(e);
+          console.log(e)
         }
       }
     })
@@ -114,9 +114,9 @@ db.collection('document')
     if (toBeUpdated.length > 0) {
       try {
         await process(toBeUpdated)
-        console.log('MEDIA GENERATE SUCCESS.');
+        console.log('MEDIA GENERATE SUCCESS.')
       } catch (e) {
-        console.log(e);
+        console.log(e)
       }
     }
   })

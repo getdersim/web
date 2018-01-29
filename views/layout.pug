@@ -36,18 +36,26 @@ html(lang='tr')
     meta(name='og:site_name', content='Ders.im')
     meta(name='og:locale', content='tr')
     meta(name='og:type', content='website')
-
+    meta(property="fb:app_id" content="533232777014146")
 
 
     link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
     link(href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css', rel='stylesheet')
     link(href='/stylesheets/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
     link(href='/stylesheets/style.css', type='text/css', rel='stylesheet', media='screen,projection')
-    link(href='/stylesheets/instantsearch.css', type='text/css', rel='stylesheet', media='screen,projection')
     block head
       title Ders.im
   body
     block content
+    #fb-root
+    script.
+      (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = 'https://connect.facebook.net/tr_TR/sdk.js#xfbml=1&version=v2.11&appId=533232777014146&autoLogAppEvents=1';
+      fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
     script(type='text/javascript', src='/javascripts/slugify.js')
     script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.2/firebase.js')
     script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js')
@@ -55,5 +63,6 @@ html(lang='tr')
     script(type='text/javascript', src='/javascripts/materialize.js')
     script(type='text/javascript', src='/javascripts/instantsearch.min.js')
     script(type='text/javascript', src='/javascripts/init.js')
-    script(type='text/javascript', src='/javascripts/search.js')
+    block javascripts
+    
   include components/upload.pug
