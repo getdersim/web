@@ -43,6 +43,7 @@ html(lang='tr')
     link(href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css', rel='stylesheet')
     link(href='/stylesheets/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
     link(href='/stylesheets/style.css', type='text/css', rel='stylesheet', media='screen,projection')
+    link(href='/stylesheets/instantsearch.css', type='text/css', rel='stylesheet', media='screen,projection')
     block head
       title Ders.im
   body
@@ -52,6 +53,7 @@ html(lang='tr')
     script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js')
     script(type='text/javascript', src='/javascripts/jquery-3.2.1.min.js')
     script(type='text/javascript', src='/javascripts/materialize.js')
-    script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/zooming/1.2.6/zooming.min.js')
+    script(type='text/javascript', src='/javascripts/instantsearch.min.js')
     script(type='text/javascript', src='/javascripts/init.js')
+    script(type='text/javascript', src='/javascripts/search.js')
   include components/upload.pug

@@ -5,11 +5,14 @@ block head
 
 block content
   include components/navigation.pug
+  include components/searchTemplate.html
+  
   .container
-    //- h4#populer.col.s12 Popüler ders materyalleri
+    h5.col.s12 Son yüklenen ders materyalleri
     //- h4#ders-notlari.col.s12 Ders notları
     //- h4#cikmis-sorular.col.s12 Çıkmış sorular
     .row
+    
       each doc in docs
         if doc.hasPreview == true
           .col.s12.m4

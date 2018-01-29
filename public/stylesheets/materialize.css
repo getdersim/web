@@ -6075,7 +6075,7 @@ input[type=search]:not(.browser-default),
 textarea.materialize-textarea {
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid #9e9e9e;
+  border-bottom: 1px solid #2ab6f6;
   border-radius: 0;
   outline: none;
   height: 3rem;
@@ -6162,9 +6162,9 @@ input[type=tel]:not(.browser-default):focus:not([readonly]),
 input[type=number]:not(.browser-default):focus:not([readonly]),
 input[type=search]:not(.browser-default):focus:not([readonly]),
 textarea.materialize-textarea:focus:not([readonly]) {
-  border-bottom: 1px solid #26a69a;
-  -webkit-box-shadow: 0 1px 0 0 #26a69a;
-          box-shadow: 0 1px 0 0 #26a69a;
+  border-bottom: 1px solid #2ab6f6;
+  -webkit-box-shadow: 0 1px 0 0 #2ab6f6;
+          box-shadow: 0 1px 0 0 #2ab6f6;
 }
 
 input:not([type]):focus:not([readonly]) + label,
