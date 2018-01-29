@@ -1,0 +1,22 @@
+extends layout
+
+block head
+  title= 'Ders.im | ' + data.displayName
+  
+
+block content
+  include components/navigation.pug
+  .container
+    .row(style="display:flex;align-items:center")
+      a(href="/@"+data.slug)
+        img.circle.hoverable(src=data.photoURL style="width:50px")
+      h1(style="font-size:2.3em;margin-left:10px;color:rgba(38, 50, 56, 0.77)") #{data.displayName}'nın profili
+    .sk-wave
+      .sk-rect.sk-rect1
+      .sk-rect.sk-rect2
+      .sk-rect.sk-rect3
+      .sk-rect.sk-rect4
+      .sk-rect.sk-rect5
+  
+    include components/login.pug
+    include components/settings.pug
