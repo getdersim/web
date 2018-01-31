@@ -6,7 +6,7 @@ const db = firebase.firestore()
 const bucket = firebase.storage().bucket('getdersim-media')
 const { promisify } = require('util')
 const writeFile = promisify(fs.writeFile)
-const fb = require('firebase/app')
+const P = require('./docToPdf')
 
 // Generate gif from given pdf url
 const generateGIF = url => {
@@ -70,22 +70,22 @@ const extractText = url => {
     })
   })
 }
-// Extract texts from given pdf url
-const getPDFPageNum = url => {
-  return new Promise(async (resolve, reject) => {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
-    })
-    const page = await browser.newPage()
-    await page.goto(`https://media.ders.im/size.html?pdf=${url}`)
 
-    page.on('console', async msg => {
-      await browser.close()
-      var data = msg._text
-      resolve(data)
+const generatePDF = async (url, type) => {
+  try {
+    // Generate PDF
+    console.log('Download success, pdf generating')
+    let filename = await P(url, type)
+    await bucket.upload(filename)
+    let [generatedFile] = await bucket.file(filename).getSignedUrl({
+      action: 'read',
+      expires: '03-17-2100'
     })
-  })
+    fs.unlinkSync(filename)
+    return generatedFile
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 const process = (docs, i = 0) => {
@@ -93,8 +93,17 @@ const process = (docs, i = 0) => {
     try {
       let doc = docs[i]
       let url = doc.doc.url
+      let originalFile = url
+      // GENERATE PDF FROM GIVEN DOCUMENT
+      if (doc.type !== 'pdf') {
+        url = await generatePDF(url, doc.type)
+        console.log('GENERATED PDF')
+      }
+      console.log(url)
       let thumbnailFile = await generateThumbnail(url)
+      console.log('THUMBNAIL GENERATED')
       let gifFile = await generateGIF(url)
+      console.log('GIF GENERATED')
       await bucket.upload(thumbnailFile)
       let [thumbnailURL] = await bucket.file(thumbnailFile).getSignedUrl({
         action: 'read',
@@ -110,8 +119,6 @@ const process = (docs, i = 0) => {
       // Extract text from given pdf
       let text = await extractText(url)
 
-      let pageNum = await getPDFPageNum(url)
-
       // remove temp files.
       fs.unlinkSync(thumbnailFile)
       fs.unlinkSync(gifFile)
@@ -119,13 +126,13 @@ const process = (docs, i = 0) => {
         thumbnail: {url: thumbnailURL, id: thumbnailFile},
         gif: {url: gifURL, id: gifFile},
         hasPreview: true,
+        hasProcessed: true,
         text,
-        pageNum,
         doc: null
       })
-      let {id, name} = doc.doc
+      let {id, name, type} = doc.doc
       await db.doc(`pdf/${doc.slug}`).set({
-        id, name, url
+        id, name, url, originalFile, type
       })
       i++
       if (docs.length > i) {
@@ -145,6 +152,7 @@ const removeContent = id => {
 
 db.collection('document')
   .onSnapshot(async snapshot => {
+    console.log('d0ru mu bu?')
     let toBeUpdated = []
     toBeUpdated = snapshot.docChanges.map(change => {
       let data = change.doc.data()
@@ -161,6 +169,7 @@ db.collection('document')
       }
     })
     toBeUpdated = toBeUpdated.filter(n => n)
+
     if (toBeUpdated.length > 0) {
       try {
         await process(toBeUpdated)

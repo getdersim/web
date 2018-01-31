@@ -1,3 +1,5 @@
+const ALLOWED_FILE_EXTENTIONS = ['doc', 'docx', 'ppt', 'pptx', 'pdf', 'xls', 'rtf', 'odt', 'odp']
+var EXTENTION = 'pdf'
 /* eslint-disable */
 $(document).ready(() => {
   $('.tabs').tabs()
@@ -54,20 +56,22 @@ $(document).ready(() => {
 
     for (var i = 0, f; f = files[i]; i++) {
 
-      if (!f.type.match('application/pdf')) {
-        continue;
-      }
-
       var reader = new FileReader();
 
       reader.onload = (function(theFile) {
         return function(e) {
           // TODO @cagatay file name can be insert unwanted js. `><img src=/ onerror=alert() />
+          EXTENTION = theFile.name.split('.').pop()
+
+          if (!ALLOWED_FILE_EXTENTIONS.includes(EXTENTION)) {
+            return;
+          }
+
           M.toast({html: `${theFile.name} yükleniyor...`, classes: 'rounded'});
           let date = new Date();
           date = date.valueOf(); // timestamp
           const file = date;
-          date = `${date}.pdf`;
+          date = `${date}.${EXTENTION}`;
           var pdfDocRef = storageRef.child(date);
 
           let uploadStatus = pdfDocRef.putString(e.target.result, 'data_url')
@@ -76,7 +80,7 @@ $(document).ready(() => {
             M.toast({html: `${theFile.name} başarıyla yüklendi.`, classes: 'rounded'});
 
             storageRef.child(date).getDownloadURL().then(function(url) {
-              doc = {name: date, url, id: file};
+              doc = {name: date, url, id: file, type: EXTENTION};
               // TODO @cagataycali when user delete things dom have to change.
               // TODO @cagataycali magic happen here. PDF TO GIF.
               M.toast({html: `Döküman başarıyla yüklendi.`, classes: 'rounded'});
@@ -216,6 +220,8 @@ $(document).ready(() => {
         displayName,
         photoURL,
         userSlug,
+        type: EXTENTION,
+        hasProcessed: EXTENTION === 'pdf',
         hasPreview: false
       });
 
@@ -223,6 +229,7 @@ $(document).ready(() => {
         window.location = `/dokuman/${slug}`
       }, 3000)
       doc = null;
+      EXTENTION = null;
     }
 
   });

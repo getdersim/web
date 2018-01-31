@@ -16,10 +16,11 @@
           .input-field.col.s12
             .file-field.input-field
               .btn
-                span Döküman (PDF)
-                input#file(type='file', multiple='false' required="true" accept=".pdf, application/pdf")
+                span Döküman
+                //- (doc, docx, ppt, pptx, pdf, xls, rtf, odt, odp)
+                input#file(type='file', multiple='false' required="true" accept=".doc, .docx, .ppt, .pptx, .pdf, .xls, .rtf, .odt, .odp")
               .file-path-wrapper
-                input.file-path.validate(type='text', placeholder='Bir adet PDF yükleyin.')
+                input.file-path.validate(type='text', placeholder='Bir adet döküman yükleyin.')
           .row#uploadedDocument
             
 
