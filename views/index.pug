@@ -28,7 +28,7 @@ block content
   
   .container
     h5.col.s12 Son yüklenen ders materyalleri
-    .row
+    .row#content
       each doc in docs
         if doc.hasPreview == true
           .col.s12.m4
@@ -36,7 +36,7 @@ block content
               .card-image.waves-effect.waves-block.waves-blue
                 img.activator(src=doc.thumbnail.url alt=doc.description)
               .card-content
-                h2.card-title.activator.grey-text.text-darken-4(style="margin-top:-15px")
+                h2.card-title.activator.grey-text.text-darken-4(style='margin-top:-15px')
                   | #{doc.title}
                   i.material-icons.right more_vert
               .card-reveal
@@ -49,13 +49,18 @@ block content
                   | Yayınlanma tarihi: #{moment(doc.date).fromNow()}
                 p
                   | Yayıncı: #{doc.displayName}
-              .card-action(style="display:flex")
-                a(href='/dokuman/' + doc.slug) Detayına git...              
+              .card-action(style='display:flex')
+                a(href='/dokuman/' + doc.slug) Detayına git...      
+                
+      //- #loader
+      //-   h1 LOADING...
 
     include components/login.pug
     include components/settings.pug
     include components/fab.pug
     
 block javascripts
-  script(type='text/javascript', src='/javascripts/search.js')    
+  script(type='text/javascript', src='/javascripts/search.js')
+  script(src='//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js')
+  script(src='//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/debug.addIndicators.min.js')  
            

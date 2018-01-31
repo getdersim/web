@@ -7,6 +7,7 @@ router.get('/', (req, res) => {
   const user = req.session.decodedToken
   db.collection('document')
   .orderBy('date', 'desc')
+  // .limit(6)
   .get()
   .then(docs => {
     docs = docs.docs.map(doc => doc.data())

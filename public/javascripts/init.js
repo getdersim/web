@@ -38,6 +38,8 @@ $(document).ready(() => {
 
   firebase.initializeApp(config)
   const db = firebase.firestore()
+  window.firebase = firebase;
+
 
   document.getElementById('file').addEventListener('change', handleFileSelect, false);
 
@@ -314,6 +316,41 @@ $(document).ready(() => {
         window.location.reload()
       }, 300);
     }
+  }
+
+  if (window.location.pathname === '/') {
+    // init controller
+  	// var controller = new ScrollMagic.Controller();
+    //
+  	// // build scene
+  	// var scene = new ScrollMagic.Scene({triggerElement: ".dynamicContent #loader", triggerHook: "onEnter"})
+  	// 				.addTo(controller)
+  	// 				.on("enter", function (e) {
+  	// 					if (!$("#loader").hasClass("active")) {
+  	// 						$("#loader").addClass("active");
+  	// 						if (console){
+  	// 							console.log("loading new items");
+  	// 						}
+  	// 						// simulate ajax call to add content using the function below
+  	// 						setTimeout(addBoxes, 1000, 9);
+  	// 					}
+  	// 				});
+    //
+  	// // pseudo function to add new content. In real life it would be done through an ajax request.
+  	// function addBoxes (amount) {
+  	// 	for (i=1; i<=amount; i++) {
+  	// 		$("<div></div>")
+  	// 			.addClass("box1")
+  	// 			.css("background-color", 'red')
+  	// 			.appendTo(".dynamicContent #content");
+  	// 	}
+    //
+  	// 	scene.update(); // make sure the scene gets the new start position
+  	// 	$("#loader").removeClass("active");
+  	// }
+    //
+  	// // add some boxes to start with.
+  	// addBoxes(18);
   }
 
   window.handleLogin = handleLogin;
