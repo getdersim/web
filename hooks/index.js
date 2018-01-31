@@ -6,6 +6,7 @@ const db = firebase.firestore()
 const bucket = firebase.storage().bucket('getdersim-media')
 const { promisify } = require('util')
 const writeFile = promisify(fs.writeFile)
+const fb = require('firebase/app')
 
 // Generate gif from given pdf url
 const generateGIF = url => {
@@ -51,6 +52,42 @@ const generateThumbnail = url => {
   })
 }
 
+// Extract texts from given pdf url
+const extractText = url => {
+  return new Promise(async (resolve, reject) => {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true
+    })
+    const page = await browser.newPage()
+    await page.goto(`https://media.ders.im/text.html?pdf=${url}`)
+
+    page.on('console', async msg => {
+      await browser.close()
+      var data = msg._text.replace(/[^\x00-\x7F]/g, '')
+      data = data.slice(0, 5000)
+      resolve(data)
+    })
+  })
+}
+// Extract texts from given pdf url
+const getPDFPageNum = url => {
+  return new Promise(async (resolve, reject) => {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true
+    })
+    const page = await browser.newPage()
+    await page.goto(`https://media.ders.im/size.html?pdf=${url}`)
+
+    page.on('console', async msg => {
+      await browser.close()
+      var data = msg._text
+      resolve(data)
+    })
+  })
+}
+
 const process = (docs, i = 0) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -69,13 +106,26 @@ const process = (docs, i = 0) => {
         action: 'read',
         expires: '03-17-2100'
       })
+
+      // Extract text from given pdf
+      let text = await extractText(url)
+
+      let pageNum = await getPDFPageNum(url)
+
       // remove temp files.
       fs.unlinkSync(thumbnailFile)
       fs.unlinkSync(gifFile)
       await db.doc(`document/${doc.slug}`).update({
         thumbnail: {url: thumbnailURL, id: thumbnailFile},
         gif: {url: gifURL, id: gifFile},
-        hasPreview: true
+        hasPreview: true,
+        text,
+        pageNum,
+        doc: null
+      })
+      let {id, name} = doc.doc
+      await db.doc(`pdf/${doc.slug}`).set({
+        id, name, url
       })
       i++
       if (docs.length > i) {

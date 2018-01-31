@@ -111,10 +111,7 @@ $(document).ready(() => {
           const content = `
           <div class="col s12 m4 document-${file}">
             <div class="card">
-              <div class="card-image">
-                <img src="${e.target.result}">
-                <span class="card-title truncate">${escape(theFile.name)}</span>
-              </div>
+              <span class="card-title truncate">${escape(theFile.name)}</span>
               <div class="card-action">
                 <a class="removeSelectedDocument" data-id="${file}">SİL</a>
               </div>
@@ -155,6 +152,9 @@ $(document).ready(() => {
       .delete()
       .then(function() {
         M.toast({html: `Döküman başarıyla silindi.`, classes: 'rounded'})
+        setTimeout(() => {
+          window.location = `/`
+        }, 1000)
       })
       .catch(function(error) {
         M.toast({html: `Döküman silinirken hata oluştu.`, classes: 'rounded'})
@@ -162,7 +162,7 @@ $(document).ready(() => {
       })
   });
 
-  $(document).on('click', '.publishDocument', function() {
+  $(document).on('click', '.publishDocument', async () => {
     const title = $('#title').val();
     const description = $('#description').val();
     if (doc.length === 0) {
@@ -175,18 +175,37 @@ $(document).ready(() => {
       M.toast({html: `Döküman açıklamasını girmelisiniz.`, classes: 'rounded'});
       return;
     } else {
-      const slug = slugify(title, {
+      let slug = slugify(title, {
       	replacement: "-",
       	lower: true
-      });
+      })
+
+      try {
+        let checkSlug = await db.collection('document').where('slug', '==', slug).get()
+        if (checkSlug.size !== 0) {
+          slug += `-${++checkSlug.size}`
+        }
+      } catch (e) {
+        console.log(e)
+      } finally {
+        console.log(slug)
+      }
 
       const date = new Date()
       const {displayName, photoURL, uid} = firebase.auth().currentUser;
-      const userSlug = slugify(displayName, {
-      	replacement: "-",
-      	lower: true
-      });
+      let userSlug
+      try {
+        let u = await db.doc(`user/${uid}`).get()
+        u = u.data()
+        userSlug = u.slug
+      } catch (e) {
+        userSlug = slugify(displayName, {
+        	replacement: "-",
+        	lower: true
+        })
+      }
       M.toast({html: `Döküman başarıyla yayınlandı.`, classes: 'rounded'});
+      M.toast({html: `3 Saniye içerisinde dökümana yönlendirileceksiniz...`, classes: 'rounded'});
       db.doc(`document/${slug}`).set({
         title,
         description,
@@ -199,6 +218,10 @@ $(document).ready(() => {
         userSlug,
         hasPreview: false
       });
+
+      setTimeout(() => {
+        window.location = `/dokuman/${slug}`
+      }, 3000)
       doc = null;
     }
 
@@ -223,6 +246,15 @@ $(document).ready(() => {
         method: 'POST',
         credentials: 'same-origin'
       })
+      if (window.location.pathname !== '/' && firebase.auth().currentUser === null) {
+        const elem = document.querySelector('#login');
+        const instance = new M.Modal.getInstance(elem);
+        setTimeout(function () {
+          $('#loginTitle').text('👻 Selam! 👋')
+          $('#loginText').text('Dökümanı görüntüleyebilmek için giriş yapman gerekiyor 😔, aramızda seni de görmek isteriz 😇')
+          instance.open()
+        }, 3500);
+      }
     }
   })
 
@@ -231,9 +263,6 @@ $(document).ready(() => {
     switch (provider) {
       case 'google':
         authProvider = new firebase.auth.GoogleAuthProvider()
-        break;
-      case 'twitter':
-        authProvider = new firebase.auth.TwitterAuthProvider()
         break;
       case 'facebook':
         authProvider = new firebase.auth.FacebookAuthProvider()
@@ -245,13 +274,19 @@ $(document).ready(() => {
         const {name, photoURL, displayName} = result.user;
 
         $('.name').text(displayName)
-        M.toast({html: `Hoşgeldin ${displayName}`, classes: 'rounded'});
+        M.toast({html: `Hoşgeldin ${displayName}`, classes: 'rounded'})
 
         const elem = document.querySelector('#login');
         const instance = new M.Modal.getInstance(elem);
         instance.close()
 
         userProfile.html(`<img class="modal-trigger circle" href="#settings" src="${photoURL}" alt="" width="42" style="position:absolute;margin-top:15px;margin-left:-15px;">`)
+
+        if (window.location.pathname !== '/') {
+          setTimeout(function () {
+            window.location.reload()
+          }, 300);
+        }
       })
       .catch((error) => {
         console.log(error)
@@ -267,6 +302,11 @@ $(document).ready(() => {
     instance.close()
     firebase.auth().signOut()
     M.toast({html: `Tekrar görüşmek üzere..`, classes: 'rounded'});
+    if (window.location.pathname !== '/') {
+      setTimeout(function () {
+        window.location.reload()
+      }, 300);
+    }
   }
 
   window.handleLogin = handleLogin;

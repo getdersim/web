@@ -41,17 +41,29 @@ app.use(session({
 
 app.use('/', index)
 
-app.post('/api/login', (req, res) => {
+async function verify (token) {
+  try {
+    let decodedToken = await firebase.auth().verifyIdToken(token)
+    let user = await firebase.firestore().doc(`/user/${decodedToken.user_id}`).get()
+    user = user.data()
+    decodedToken.isAdmin = user.isAdmin
+    return decodedToken
+  } catch (e) {
+    console.log(e)
+    throw new Error(e)
+  }
+}
+
+app.post('/api/login', async (req, res) => {
   if (!req.body) return res.sendStatus(400)
 
-  const token = req.body.token
-  firebase.auth().verifyIdToken(token)
-    .then(decodedToken => {
-      req.session.decodedToken = decodedToken
-      return decodedToken
-    })
-    .then(decodedToken => res.json({ status: true, decodedToken }))
-    .catch(error => res.json({ error }))
+  try {
+    let decodedToken = await verify(req.body.token)
+    req.session.decodedToken = decodedToken
+    res.json({ status: true, decodedToken })
+  } catch (e) {
+    res.json({ status: false, error: e })
+  }
 })
 
 app.post('/api/logout', (req, res) => {

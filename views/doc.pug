@@ -2,17 +2,39 @@ extends layout
 
 block head
   title= title
-
+  meta(itemprop='name', content='Ders.im')
+  meta(itemprop='description', content=doc.title + ' | Ders.im')
+  meta(property='twitter:card', content='summary_large_image')
+  meta(property='twitter:title', content='Ders.im')
+  meta(property='twitter:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://beta.ders.im')
+  meta(property='twitter:site', content='@getdersim')
+  meta(property='twitter:creator', content='@cagataycali')
+  
+  meta(property='og:title', content=doc.title + ' | Ders.im')
+  meta(property='og:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://beta.ders.im')
+  meta(property='og:url', content='https://beta.ders.im/dokuman/' + doc.slug)
+  meta(property='og:site_name', content='Ders.im')
+  meta(property='og:locale', content='tr')
+  meta(property='og:type', content='website')
+  if doc.hasPreview
+    meta(name='image', itemprop='image', content=doc.gif.url)
+    meta(property='twitter:image', content=doc.gif.url)
+    meta(property='og:image', content=doc.gif.url)
+    meta(property='og:image:type', content='image/gif')
+      
 block content
   include components/navigation.pug
   .container
     .row(style="margin-top:20px")
       .col.s12.m8
+          
         if user
-          //- embed(src=doc.doc.url title=doc.title width="100%" style="height:500px" type='application/pdf')
-          embed#pdf(src=doc.doc.url + '#toolbar=0&navpanes=0&scrollbar=0' width="100%" style="height:500px" type='application/pdf')
+          if doc.hasPreview
+            iframe(src='https://pdf.ders.im?url='+pdf.url style="width:100%; height:500px;" frameborder="0")
+          else    
+            iframe(src='https://pdf.ders.im?url='+doc.doc.url style="width:100%; height:500px;" frameborder="0")
         else
-          img(style="width:100%" src=doc.gif.url)
+          img(style="width:100%" src=doc.gif.url alt=doc.description)
               
       .col.s12.m4(style="margin-top:-7px")
         ul.collection.with-header
@@ -23,14 +45,11 @@ block content
             p #{doc.description}
           li.collection-item.avatar
             i.material-icons.circle.amber.accent-2.hoverable today
-            p #{moment(doc.date).fromNow()}
+            p(style="margin-top: 10px") #{moment(doc.date).fromNow()}
           li.collection-item.avatar
             a(href="/@" + doc.userSlug)
               img.circle.hoverable(src=doc.photoURL)
-            p #{doc.displayName}
-          li.collection-item.avatar(style="padding: 5px")
-            .fb-like(data-href='http://localhost:3000/dokuman/' + doc.slug, data-layout='standard', data-action='recommend', data-size='large', data-show-faces='true', data-share='true')
-
+            p(style="margin-top: 10px") #{doc.displayName}
           if (user && user.isAdmin) || isOwner
             li.collection-item.avatar
               i.material-icons.circle.blue.lighten-2.hoverable build
@@ -39,8 +58,8 @@ block content
                 a.waves-effect.waves-light.btn.red.deleteDocument
                   i.material-icons.right delete
                   | Kaldır  
-    .fb-comments(data-href='http://localhost:3000/dokuman/' + doc.slug, data-numposts='5' width='100%')
-
+    
+    .fb-comments(data-href='https://beta.ders.im/dokuman/' + doc.slug, data-numposts='5' width='100%')
                         
     include components/login.pug
     include components/settings.pug
