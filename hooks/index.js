@@ -67,12 +67,10 @@ const extractText = url => {
     await page.goto(`https://media.ders.im/text.html?pdf=${url}`)
 
     page.on('console', async msg => {
-      if (msg._text.startsWith('data:')) {
         var data = msg._text.replace(/[^\x00-\x7F]/g, '')
         data = data.slice(0, 5000)
         await browser.close()
         resolve(data)
-      }
     })
   })
 }
