@@ -4,7 +4,7 @@ app({
   apiKey: 'adee40d0e5a869dad0e1654d94324ee0',
   indexName: 'documents',
   searchParameters: {
-    hitsPerPage: 10
+    hitsPerPage: 3
   },
   searchFunction: function (helper) {
     if (helper.state.query === '') {
@@ -22,7 +22,8 @@ function app (opts) {
     apiKey: opts.apiKey,
     indexName: opts.indexName,
     urlSync: false,
-    searchFunction: opts.searchFunction
+    searchFunction: opts.searchFunction,
+    searchParameters: opts.searchParameters
   })
 
   search.addWidget(
@@ -35,20 +36,22 @@ function app (opts) {
   )
 
   search.addWidget(
-    instantsearch.widgets.hits({
+    instantsearch.widgets.infiniteHits({
       container: '#hits',
       templates: {
         item: getTemplate('hit'),
         empty: getTemplate('no-results')
-      }
+      },
+      showMoreLabel: 'Daha fazla sonuç getir...',
+      hitsPerPage: 3
     })
   )
   //
   // search.addWidget(
   //   instantsearch.widgets.stats({
-  //     container: '#stats',
+  //     container: '#stats'
   //   })
-  // );
+  // )
   //
   // search.addWidget(
   //   instantsearch.widgets.sortBySelector({

@@ -3,19 +3,31 @@ const router = express.Router()
 const firebase = require('../firebase')
 const db = firebase.firestore()
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const user = req.session.decodedToken
-  db.collection('document')
-  .orderBy('date', 'desc')
-  // .limit(6)
-  .get()
-  .then(docs => {
+  try {
+    let docs = await db.collection('document').orderBy('date', 'desc').limit(12).get()
     docs = docs.docs.map(doc => doc.data())
-    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, home: true })
-  })
-  .catch(() => {
-    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], home: true })
-  })
+
+    let syllabus = await db.collection('syllabus').orderBy('date', 'desc').limit(12).get()
+    syllabus = syllabus.docs.map(syl => syl.data())
+    console.log(syllabus);
+    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, syllabus, home: true })
+  } catch (e) {
+    res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], syllabus: [], home: true })
+  }
+  //
+  // db.collection('document')
+  // .orderBy('date', 'desc')
+  // .limit(12)
+  // .get()
+  // .then(docs => {
+  //   docs = docs.docs.map(doc => doc.data())
+  //   res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, home: true })
+  // })
+  // .catch(() => {
+  //   res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], home: true })
+  // })
 })
 
 /* GET detail page. */
@@ -46,12 +58,39 @@ router.get('/dokuman/:slug?', async (req, res) => {
     } catch (e) {
       pdf = data.doc
     }
-    console.log(pdf.url);
 
     res.render('doc', { title: `Ders.im | ${data.title}`, user, doc: data, pdf, isOwner })
   } catch (e) {
     console.log(e)
     res.status(404).send('Döküman mevcut değil veya yüklenirken hata oluştu.')
+  }
+})
+/* GET syllabus page. */
+router.get('/ozet', async (req, res) => {
+  const user = req.session.decodedToken
+  res.render('syllabus', { title: `Ders.im | Özet`, user })
+})
+
+router.get('/~:slug', async (req, res) => {
+  if (!req.params.slug) {
+    res.redirect(301, '/')
+  }
+  const user = req.session.decodedToken
+  const slug = req.params.slug
+  try {
+    let snapshot = await db.doc(`syllabus/${slug}`).get()
+    let data = snapshot.data()
+
+    let isOwner = false
+    // console.log(data)
+    if ((user && data.uid === user.uid) || data.isAdmin) {
+      isOwner = true
+    }
+
+    res.render('syllabusDetail', { title: `Ders.im | ${data.title}`, user, syllabus: data, isOwner })
+  } catch (e) {
+    console.log(e)
+    res.status(404).send('Özet mevcut değil veya yüklenirken hata oluştu.')
   }
 })
 

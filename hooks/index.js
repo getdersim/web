@@ -19,13 +19,15 @@ const generateGIF = url => {
     await page.goto(`https://media.ders.im/?pdf=${url}`)
 
     page.on('console', async msg => {
-      var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
-      var buffer = Buffer.from(data, 'base64')
-      let d = new Date()
-      let filename = `${d.valueOf()}.gif`
-      writeFile(filename, buffer)
-      await browser.close()
-      resolve(filename)
+      if (msg._text.startsWith('data:')) {
+        var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
+        var buffer = Buffer.from(data, 'base64')
+        let d = new Date()
+        let filename = `${d.valueOf()}.gif`
+        writeFile(filename, buffer)
+        await browser.close()
+        resolve(filename)
+      }
     })
   })
 }
@@ -41,13 +43,15 @@ const generateThumbnail = url => {
     await page.goto(`https://media.ders.im/thumbnail.html?pdf=${url}`)
 
     page.on('console', async msg => {
-      var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
-      var buffer = Buffer.from(data, 'base64')
-      let d = new Date()
-      let filename = `${d.valueOf()}.png`
-      writeFile(filename, buffer)
-      await browser.close()
-      resolve(filename)
+      if (msg._text.startsWith('data:')) {
+        var data = msg._text.replace(/^data:image\/\w+;base64,/, '')
+        var buffer = Buffer.from(data, 'base64')
+        let d = new Date()
+        let filename = `${d.valueOf()}.png`
+        writeFile(filename, buffer)
+        await browser.close()
+        resolve(filename)
+      }
     })
   })
 }
@@ -63,10 +67,12 @@ const extractText = url => {
     await page.goto(`https://media.ders.im/text.html?pdf=${url}`)
 
     page.on('console', async msg => {
-      await browser.close()
-      var data = msg._text.replace(/[^\x00-\x7F]/g, '')
-      data = data.slice(0, 5000)
-      resolve(data)
+      if (msg._text.startsWith('data:')) {
+        var data = msg._text.replace(/[^\x00-\x7F]/g, '')
+        data = data.slice(0, 5000)
+        await browser.close()
+        resolve(data)
+      }
     })
   })
 }

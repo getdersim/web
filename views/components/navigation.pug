@@ -1,15 +1,23 @@
 nav.nav-extended.light-blue.lighten-1(role='navigation')
-  .nav-wrapper.container
-    a#logo-container.brand-logo(href='/') 
-      i.fa.fa-graduation-cap
-    a.sidenav-trigger.modal-trigger.userProfile(href='#login')
-      if user
-        img.modal-trigger.circle(href="#settings" src=user.picture, alt='' style="position:absolute;margin-top:13px;margin-left:-13px;width:2.3em;cursor:pointer;")
-      else
-        i.modal-trigger.material-icons.account-icon(href='#login') account_circle
-    ul#nav-mobile.right.hide-on-med-and-down
-      li.userProfile
+  .container
+    .nav-wrapper
+      a#logo-container.brand-logo(href='/') 
+        i.fa.fa-graduation-cap
+      a.sidenav-trigger.modal-trigger.userProfile(href='#login')
         if user
-          img.modal-trigger.circle(href="#settings" src=user.picture, alt='' style="position:absolute;margin-top:15px;margin-left:-15px;width:2.3em;cursor:pointer;")
+          img.modal-trigger.circle(href="#settings" src=user.picture, alt='' style="position:absolute;margin-top:13px;margin-left:-13px;width:2.3em;cursor:pointer;")
         else
           i.modal-trigger.material-icons.account-icon(href='#login') account_circle
+      ul#nav-mobile.right.hide-on-med-and-down
+        li.userProfile(style="list-style-type:none")
+          if user
+            img.modal-trigger.circle(href="#settings" src=user.picture, alt='' style="position:absolute;margin-top:15px;margin-left:-15px;width:2.3em;cursor:pointer;")
+          else
+            i.modal-trigger.material-icons.account-icon(href='#login') account_circle
+    if home
+      .nav-content
+        ul.tabs.tabs-transparent
+          li.tab
+            a.active(href='#doc') Dökümanlar
+          li.tab
+            a(href='#syllabus') Özetler

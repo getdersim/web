@@ -1,5 +1,67 @@
 const ALLOWED_FILE_EXTENTIONS = ['doc', 'docx', 'ppt', 'pptx', 'pdf', 'xls', 'rtf', 'odt', 'odp']
 var EXTENTION = 'pdf'
+
+// function removeMarkdown (md, options) {
+//   options = options || {};
+//   options.listUnicodeChar = options.hasOwnProperty('listUnicodeChar') ? options.listUnicodeChar : false;
+//   options.stripListLeaders = options.hasOwnProperty('stripListLeaders') ? options.stripListLeaders : true;
+//   options.gfm = options.hasOwnProperty('gfm') ? options.gfm : true;
+//
+//   var output = md || '';
+//
+//   // Remove horizontal rules (stripListHeaders conflict with this rule, which is why it has been moved to the top)
+//   output = output.replace(/^(-\s*?|\*\s*?|_\s*?){3,}\s*$/gm, '');
+//
+//   try {
+//     if (options.stripListLeaders) {
+//       if (options.listUnicodeChar)
+//         output = output.replace(/^([\s\t]*)([\*\-\+]|\d+\.)\s+/gm, options.listUnicodeChar + ' $1');
+//       else
+//         output = output.replace(/^([\s\t]*)([\*\-\+]|\d+\.)\s+/gm, '$1');
+//     }
+//     if (options.gfm) {
+//       output = output
+//         // Header
+//         .replace(/\n={2,}/g, '\n')
+//         // Strikethrough
+//         .replace(/~~/g, '')
+//         // Fenced codeblocks
+//         .replace(/`{3}.*\n/g, '');
+//     }
+//     output = output
+//       // Remove HTML tags
+//       .replace(/<[^>]*>/g, '')
+//       // Remove setext-style headers
+//       .replace(/^[=\-]{2,}\s*$/g, '')
+//       // Remove footnotes?
+//       .replace(/\[\^.+?\](\: .*?$)?/g, '')
+//       .replace(/\s{0,2}\[.*?\]: .*?$/g, '')
+//       // Remove images
+//       .replace(/\!\[.*?\][\[\(].*?[\]\)]/g, '')
+//       // Remove inline links
+//       .replace(/\[(.*?)\][\[\(].*?[\]\)]/g, '$1')
+//       // Remove blockquotes
+//       .replace(/^\s{0,3}>\s?/g, '')
+//       // Remove reference-style links?
+//       .replace(/^\s{1,2}\[(.*?)\]: (\S+)( ".*?")?\s*$/g, '')
+//       // Remove atx-style headers
+//       .replace(/^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$/gm, '$1$2$3')
+//       // Remove emphasis (repeat the line to remove double emphasis)
+//       .replace(/([\*_]{1,3})(\S.*?\S{0,1})\1/g, '$2')
+//       .replace(/([\*_]{1,3})(\S.*?\S{0,1})\1/g, '$2')
+//       // Remove code blocks
+//       .replace(/(`{3,})(.*?)\1/gm, '$2')
+//       // Remove inline code
+//       .replace(/`(.+?)`/g, '$1')
+//       // Replace two or more newlines with exactly two? Not entirely sure this belongs here...
+//       .replace(/\n{2,}/g, '\n\n');
+//   } catch(e) {
+//     console.error(e);
+//     return md;
+//   }
+//   return output;
+// }
+
 /* eslint-disable */
 $(document).ready(() => {
   $('.tabs').tabs()
@@ -91,7 +153,7 @@ $(document).ready(() => {
           })
           .catch(error => {
             console.log(error);
-            M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok :)`, classes: 'rounded'});
+            M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok veya bir problem oldu :)`, classes: 'rounded'});
           })
 
           uploadStatus.on('state_changed', function(snapshot){
@@ -189,7 +251,7 @@ $(document).ready(() => {
       try {
         let checkSlug = await db.collection('document').where('slug', '==', slug).get()
         if (checkSlug.size !== 0) {
-          slug += `-${++checkSlug.size}`
+          slug += `-${checkSlug.size}`
         }
       } catch (e) {
         console.log(e)
@@ -206,12 +268,12 @@ $(document).ready(() => {
         userSlug = u.slug
       } catch (e) {
         userSlug = slugify(displayName, {
-        	replacement: "-",
+        	replacement: ' ',
         	lower: true
-        })
+        }).split(' ').join('')
       }
       M.toast({html: `Döküman başarıyla yayınlandı.`, classes: 'rounded'});
-      M.toast({html: `3 Saniye içerisinde dökümana yönlendirileceksiniz...`, classes: 'rounded'});
+      M.toast({html: `5 Saniye içerisinde dökümana yönlendirileceksiniz...`, classes: 'rounded'});
       db.doc(`document/${slug}`).set({
         title,
         description,
@@ -229,7 +291,7 @@ $(document).ready(() => {
 
       setTimeout(() => {
         window.location = `/dokuman/${slug}`
-      }, 3000)
+      }, 5000)
       doc = null;
       EXTENTION = null;
     }
@@ -255,7 +317,7 @@ $(document).ready(() => {
         method: 'POST',
         credentials: 'same-origin'
       })
-      if (window.location.pathname !== '/' && firebase.auth().currentUser === null) {
+      if (window.location.pathname !== '/' && window.location.pathname !== '/ozet' && firebase.auth().currentUser === null) {
         const elem = document.querySelector('#login');
         const instance = new M.Modal.getInstance(elem);
         setTimeout(function () {
@@ -291,10 +353,11 @@ $(document).ready(() => {
 
         userProfile.html(`<img class="modal-trigger circle" href="#settings" src="${photoURL}" alt="" width="42" style="position:absolute;margin-top:15px;margin-left:-15px;">`)
 
-        if (window.location.pathname !== '/') {
+        if (window.location.pathname !== '/' && window.location.pathname !== '/ozet') {
           setTimeout(function () {
+            M.toast({html: `5 Saniye içerisinde dökümana yönlendirileceksiniz...`, classes: 'rounded'});
             window.location.reload()
-          }, 300);
+          }, 4500);
         }
       })
       .catch((error) => {
@@ -311,48 +374,107 @@ $(document).ready(() => {
     instance.close()
     firebase.auth().signOut()
     M.toast({html: `Tekrar görüşmek üzere..`, classes: 'rounded'});
-    if (window.location.pathname !== '/') {
+    if (window.location.pathname !== '/' && window.location.pathname !== '/ozet') {
       setTimeout(function () {
         window.location.reload()
       }, 300);
     }
   }
 
-  if (window.location.pathname === '/') {
-    // init controller
-  	// var controller = new ScrollMagic.Controller();
-    //
-  	// // build scene
-  	// var scene = new ScrollMagic.Scene({triggerElement: ".dynamicContent #loader", triggerHook: "onEnter"})
-  	// 				.addTo(controller)
-  	// 				.on("enter", function (e) {
-  	// 					if (!$("#loader").hasClass("active")) {
-  	// 						$("#loader").addClass("active");
-  	// 						if (console){
-  	// 							console.log("loading new items");
-  	// 						}
-  	// 						// simulate ajax call to add content using the function below
-  	// 						setTimeout(addBoxes, 1000, 9);
-  	// 					}
-  	// 				});
-    //
-  	// // pseudo function to add new content. In real life it would be done through an ajax request.
-  	// function addBoxes (amount) {
-  	// 	for (i=1; i<=amount; i++) {
-  	// 		$("<div></div>")
-  	// 			.addClass("box1")
-  	// 			.css("background-color", 'red')
-  	// 			.appendTo(".dynamicContent #content");
-  	// 	}
-    //
-  	// 	scene.update(); // make sure the scene gets the new start position
-  	// 	$("#loader").removeClass("active");
-  	// }
-    //
-  	// // add some boxes to start with.
-  	// addBoxes(18);
+  if (window.location.pathname === '/ozet') {
+    $(document).on('click', '.saveSyllabus',async () => {
+      let content = editor.getData() // HTML
+      let context = jQuery(content).text() // TEXT
+      let title = jQuery(jQuery(content)[0]).text()
+      let slug =  slugify(title, {
+      	replacement: "-",
+      	lower: true
+      })
+
+      console.log(slug);
+
+      try {
+        let checkSlug = await db.collection('syllabus').where('slug', '==', slug).get()
+        if (checkSlug.size !== 0) {
+          slug += `-${checkSlug.size}`
+        }
+      } catch (e) {
+        console.log(e) // TODO @cagataycali bugsnag
+      }
+
+      const date = new Date()
+      const {displayName, photoURL, uid} = firebase.auth().currentUser;
+      let userSlug
+      try {
+        let u = await db.doc(`user/${uid}`).get()
+        u = u.data()
+        userSlug = u.slug
+      } catch (e) {
+        userSlug = slugify(displayName, {
+        	replacement: ' ',
+        	lower: true
+        }).split(' ').join('')
+      }
+
+      db.doc(`syllabus/${slug}`).set({
+        title,
+        content,
+        context,
+        slug,
+        date,
+        uid,
+        displayName,
+        photoURL,
+        userSlug
+      })
+      M.toast({html: `Özet başarıyla yayınlandı.`, classes: 'rounded'})
+      M.toast({html: `5 Saniye içerisinde özete yönlendirileceksiniz...`, classes: 'rounded'})
+      setTimeout(() => {
+        window.location = `/~${slug}`
+      }, 5000)
+    })
   }
 
-  window.handleLogin = handleLogin;
-  window.handleLogout = handleLogout;
+  if (window.location.pathname.startsWith('/~')) {
+    let slug = decodeURI(window.location.pathname.split('/~')[1])
+    console.log(slug);
+    async function getSyllabus(slug) {
+      let snapshot = await db.doc(`syllabus/${slug}`).get()
+      let data = snapshot.data()
+      console.log(data);
+
+
+      function getId(url) {
+          var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+          var match = url.match(regExp);
+
+          if (match && match[2].length == 11) {
+              return match[2];
+          } else {
+              return 'error';
+          }
+      }
+      var generateIFrame = id => `<iframe width="560" height="315" src="//www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`
+
+      var object = jQuery(data.content)
+      for (var i = 0; i < object.length; i++) {
+          var id = getId(object[i].innerText);
+          if (id != 'error') {
+            let p = document.createElement('p')
+            p.innerHTML = generateIFrame(id)
+            object[i] = p
+            console.log(i);
+          } else {
+            object[i]
+          }
+      }
+      $('.loading').slideUp('slow')
+      $('.content').html(object).slideDown('slow')
+    }
+    getSyllabus(slug)
+  }
+
+  $(document).on('click', '.goTo', function() {
+    window.location = `/~${$(this).attr('id')}`
+  })
 })

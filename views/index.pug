@@ -25,10 +25,11 @@ block head
 block content
   include components/navigation.pug
   include components/searchTemplate.html
+
   
-  .container
+  .container#doc
     h5.col.s12 Son yüklenen ders materyalleri
-    .row#content
+    .row
       each doc in docs
         if doc.hasPreview == true
           .col.s12.m4
@@ -50,14 +51,27 @@ block content
                 p
                   | Yayıncı: #{doc.displayName}
               .card-action(style='display:flex')
-                a(href='/dokuman/' + doc.slug) Detayına git...      
+                a(href='/dokuman/' + doc.slug) Detayına git...    
+                  
+  .container#syllabus
+    h5.col.s12 Son oluşturulan özetler
+    .row
+      ul.collection.clearList
+        each syl in syllabus
+            li.collection-item.avatar.goTo(id=syl.slug)
+              img.circle(src=syl.photoURL, alt='')
+              span.title(style="font-weight: bold;") #{syl.title}
+              p
+                | #{syl.displayName} tarafından oluşturuldu.
+                br
+                |          #{moment(syl.date).fromNow()}
+              a.secondary-content(href='/~'+syl.slug)
+                i.material-icons(style="color:#2ab6f6") arrow_forward
+            
                 
-      //- #loader
-      //-   h1 LOADING...
-
-    include components/login.pug
-    include components/settings.pug
-    include components/fab.pug
+        
+  include components/login.pug
+  include components/settings.pug
     
 block javascripts
   script(type='text/javascript', src='/javascripts/search.js')

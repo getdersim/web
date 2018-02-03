@@ -1,0 +1,43 @@
+extends layout
+
+block head
+  title= title
+  meta(itemprop='name', content='Ders.im')
+  meta(itemprop='description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(name='image', itemprop='image', content='/images/logo.png')
+  // Twitter Meta Headers
+  meta(property='twitter:card', content='summary_large_image')
+  meta(property='twitter:title', content='Ders.im')
+  meta(property='twitter:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(property='twitter:site', content='@getdersim')
+  meta(property='twitter:creator', content='@cagataycali')
+  meta(property='twitter:image', content='/images/logo.png')
+  // Open Graph general (Facebook, Pinterest & Google+)
+  meta(property='og:title', content='Ders.im')
+  meta(property='og:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(property='og:image', content='/images/logo.png')
+  meta(property='og:url', content='https://ders.im')
+  meta(property='og:site_name', content='Ders.im')
+  meta(property='og:locale', content='tr')
+  meta(property='og:type', content='website')
+  script(src='javascripts/ckeditor.js')
+      
+block content
+  include components/navigation.pug
+  
+    
+  .container
+    .row(style="margin-top:20px")
+      p(style="color:rgba(173, 170, 170, 0.7);") Ders.im'de bir konu ile ilgili özet oluşturabilirsiniz. Özet; bir konunun, sözün ya da yazının anlamını ana çizgileriyle, kısa ve öz bir biçimde veren anlatım ya da yazı.
+      #editor
+    
+
+    script(src="javascripts/editor.js")
+    
+    include components/login.pug
+    include components/settings.pug
+    #fab.fixed-action-btn.saveSyllabus
+      a.btn-floating.btn-large.green.lighten-3
+        i.large.material-icons save
+
+           

@@ -105,3 +105,18 @@ body {
   20% {
     -webkit-transform: scaleY(1);
             transform: scaleY(1); } }
+
+
+.clearList {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+
+.ais-infinite-hits--showmore > button {
+  margin: 10px 15px;
+}
+
+.goTo {
+  cursor: pointer;
+}

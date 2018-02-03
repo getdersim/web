@@ -1,0 +1,67 @@
+extends layout
+
+block head
+  title= title
+  meta(itemprop='name', content='Ders.im')
+  meta(itemprop='description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(name='image', itemprop='image', content='/images/logo.png')
+  // Twitter Meta Headers
+  meta(property='twitter:card', content='summary_large_image')
+  meta(property='twitter:title', content='Ders.im')
+  meta(property='twitter:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(property='twitter:site', content='@getdersim')
+  meta(property='twitter:creator', content='@cagataycali')
+  meta(property='twitter:image', content='/images/logo.png')
+  // Open Graph general (Facebook, Pinterest & Google+)
+  meta(property='og:title', content='Ders.im')
+  meta(property='og:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
+  meta(property='og:image', content='/images/logo.png')
+  meta(property='og:url', content='https://ders.im')
+  meta(property='og:site_name', content='Ders.im')
+  meta(property='og:locale', content='tr')
+  meta(property='og:type', content='website')
+  script(src='javascripts/ckeditor.js')
+  link(src="stylesheets/syllabus.css")
+      
+block content
+  include components/navigation.pug
+    
+  .container
+    .row(style="margin-top:20px")
+      .loading.center
+        .preloader-wrapper.big.active
+          .spinner-layer.spinner-blue
+            .circle-clipper.left
+              .circle
+            .gap-patch
+              .circle
+            .circle-clipper.right
+              .circle
+          .spinner-layer.spinner-red
+            .circle-clipper.left
+              .circle
+            .gap-patch
+              .circle
+            .circle-clipper.right
+              .circle
+          .spinner-layer.spinner-yellow
+            .circle-clipper.left
+              .circle
+            .gap-patch
+              .circle
+            .circle-clipper.right
+              .circle
+          .spinner-layer.spinner-green
+            .circle-clipper.left
+              .circle
+            .gap-patch
+              .circle
+            .circle-clipper.right
+              .circle
+      .content(style="display:none")
+      .fb-comments(data-href='https://beta.ders.im/~' + syllabus.slug, data-numposts='5' width='100%')
+      
+
+    include components/login.pug
+    include components/settings.pug
+           
