@@ -56,6 +56,9 @@ block content
           li.collection-item.avatar
             i.material-icons.circle.amber.accent-2.hoverable today
             p(style="margin-top: 10px") #{moment(doc.date).fromNow()}
+          if doc.hasPreview
+            li.collection-item
+              a.waves-effect.waves-light.btn-large(href=pdf.originalFile target='_blank') Dosyayı İndir (.#{doc.type})
           li.collection-item.avatar
             a(href="/@" + doc.userSlug)
               img.circle.hoverable(src=doc.photoURL)

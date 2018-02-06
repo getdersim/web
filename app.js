@@ -47,6 +47,7 @@ async function verify (token) {
     let user = await firebase.firestore().doc(`/user/${decodedToken.user_id}`).get()
     user = user.data()
     decodedToken.isAdmin = user.isAdmin
+    decodedToken.slug = user.slug
     return decodedToken
   } catch (e) {
     console.log(e)

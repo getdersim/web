@@ -20,7 +20,7 @@ block head
   meta(property='og:site_name', content='Ders.im')
   meta(property='og:locale', content='tr')
   meta(property='og:type', content='website')
-  script(src='javascripts/ckeditor.js')
+  script(src='/javascripts/ckeditor.js')
       
 block content
   include components/navigation.pug
@@ -30,9 +30,11 @@ block content
     .row(style="margin-top:20px")
       p(style="color:rgba(173, 170, 170, 0.7);") Ders.im'de bir konu ile ilgili özet oluşturabilirsiniz. Özet; bir konunun, sözün ya da yazının anlamını ana çizgileriyle, kısa ve öz bir biçimde veren anlatım ya da yazı.
       #editor
+      
+        
     
 
-    script(src="javascripts/editor.js")
+    script(src="/javascripts/editor.js")
     
     include components/login.pug
     include components/settings.pug

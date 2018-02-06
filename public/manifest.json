@@ -3,11 +3,11 @@
   "short_name": "Ders.im",
   "theme_color": "#29b6f6",
   "background_color": "#29b6f6",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "Scope": "/",
   "start_url": "/",
-  "gcm_sender_id": "482941778795",
+  "gcm_sender_id": "103953800507",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",

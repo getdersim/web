@@ -11,23 +11,10 @@ router.get('/', async (req, res) => {
 
     let syllabus = await db.collection('syllabus').orderBy('date', 'desc').limit(12).get()
     syllabus = syllabus.docs.map(syl => syl.data())
-    console.log(syllabus);
     res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, syllabus, home: true })
   } catch (e) {
     res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], syllabus: [], home: true })
   }
-  //
-  // db.collection('document')
-  // .orderBy('date', 'desc')
-  // .limit(12)
-  // .get()
-  // .then(docs => {
-  //   docs = docs.docs.map(doc => doc.data())
-  //   res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs, home: true })
-  // })
-  // .catch(() => {
-  //   res.render('index', { title: `Ders.im | Ana Sayfa`, user, docs: [], home: true })
-  // })
 })
 
 /* GET detail page. */
@@ -65,10 +52,24 @@ router.get('/dokuman/:slug?', async (req, res) => {
     res.status(404).send('Döküman mevcut değil veya yüklenirken hata oluştu.')
   }
 })
+
 /* GET syllabus page. */
 router.get('/ozet', async (req, res) => {
   const user = req.session.decodedToken
   res.render('syllabus', { title: `Ders.im | Özet`, user })
+})
+/* GET syllabus page. */
+router.get('/ozet/duzenle/:slug', async (req, res) => {
+  const user = req.session.decodedToken
+  let snapshot = await db.doc(`syllabus/${req.params.slug}`).get()
+  let data = snapshot.data()
+  console.log(data)
+  let isOwner = false
+  // console.log(data)
+  if ((user && data.uid === user.uid) || data.isAdmin) {
+    isOwner = true
+  }
+  res.render('syllabus', { title: `Ders.im | Özet`, user, syl: data, isOwner })
 })
 
 router.get('/~:slug', async (req, res) => {
@@ -104,7 +105,6 @@ router.get('/@:slug?', async (req, res) => {
   try {
     let user = await db.collection('user').where('slug', '==', req.params.slug).get()
     user = user.docs[0].data()
-    console.log(user)
     let isOwner = false
     if (loggedInUser && loggedInUser.uid === user.uid) {
       isOwner = true

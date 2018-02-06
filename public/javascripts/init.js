@@ -1,66 +1,6 @@
+/* eslint-disable */
 const ALLOWED_FILE_EXTENTIONS = ['doc', 'docx', 'ppt', 'pptx', 'pdf', 'xls', 'rtf', 'odt', 'odp']
 var EXTENTION = 'pdf'
-
-// function removeMarkdown (md, options) {
-//   options = options || {};
-//   options.listUnicodeChar = options.hasOwnProperty('listUnicodeChar') ? options.listUnicodeChar : false;
-//   options.stripListLeaders = options.hasOwnProperty('stripListLeaders') ? options.stripListLeaders : true;
-//   options.gfm = options.hasOwnProperty('gfm') ? options.gfm : true;
-//
-//   var output = md || '';
-//
-//   // Remove horizontal rules (stripListHeaders conflict with this rule, which is why it has been moved to the top)
-//   output = output.replace(/^(-\s*?|\*\s*?|_\s*?){3,}\s*$/gm, '');
-//
-//   try {
-//     if (options.stripListLeaders) {
-//       if (options.listUnicodeChar)
-//         output = output.replace(/^([\s\t]*)([\*\-\+]|\d+\.)\s+/gm, options.listUnicodeChar + ' $1');
-//       else
-//         output = output.replace(/^([\s\t]*)([\*\-\+]|\d+\.)\s+/gm, '$1');
-//     }
-//     if (options.gfm) {
-//       output = output
-//         // Header
-//         .replace(/\n={2,}/g, '\n')
-//         // Strikethrough
-//         .replace(/~~/g, '')
-//         // Fenced codeblocks
-//         .replace(/`{3}.*\n/g, '');
-//     }
-//     output = output
-//       // Remove HTML tags
-//       .replace(/<[^>]*>/g, '')
-//       // Remove setext-style headers
-//       .replace(/^[=\-]{2,}\s*$/g, '')
-//       // Remove footnotes?
-//       .replace(/\[\^.+?\](\: .*?$)?/g, '')
-//       .replace(/\s{0,2}\[.*?\]: .*?$/g, '')
-//       // Remove images
-//       .replace(/\!\[.*?\][\[\(].*?[\]\)]/g, '')
-//       // Remove inline links
-//       .replace(/\[(.*?)\][\[\(].*?[\]\)]/g, '$1')
-//       // Remove blockquotes
-//       .replace(/^\s{0,3}>\s?/g, '')
-//       // Remove reference-style links?
-//       .replace(/^\s{1,2}\[(.*?)\]: (\S+)( ".*?")?\s*$/g, '')
-//       // Remove atx-style headers
-//       .replace(/^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$/gm, '$1$2$3')
-//       // Remove emphasis (repeat the line to remove double emphasis)
-//       .replace(/([\*_]{1,3})(\S.*?\S{0,1})\1/g, '$2')
-//       .replace(/([\*_]{1,3})(\S.*?\S{0,1})\1/g, '$2')
-//       // Remove code blocks
-//       .replace(/(`{3,})(.*?)\1/gm, '$2')
-//       // Remove inline code
-//       .replace(/`(.+?)`/g, '$1')
-//       // Replace two or more newlines with exactly two? Not entirely sure this belongs here...
-//       .replace(/\n{2,}/g, '\n\n');
-//   } catch(e) {
-//     console.error(e);
-//     return md;
-//   }
-//   return output;
-// }
 
 /* eslint-disable */
 $(document).ready(() => {
@@ -76,18 +16,6 @@ $(document).ready(() => {
    toolbarEnabled: false // Toolbar transition enabled
   })
 
-  let doc;
-
-  const userProfile = $('.userProfile')
-
-  $(document).on('click', '.doLogin', function() {
-    const provider = $(this).data('provider');
-    handleLogin(provider)
-  })
-
-  $(document).on('click', '.doLogout', function() {
-    handleLogout()
-  })
 
   const config = {
     apiKey: "AIzaSyAnI8whawVkwgJQ73moU4HHiOIehVaofVs",
@@ -100,7 +28,66 @@ $(document).ready(() => {
 
   firebase.initializeApp(config)
   const db = firebase.firestore()
-  window.firebase = firebase;
+  window.firebase = firebase
+
+  function closeModalAndSuggestLogin(text = 'Dökümanı görüntüleyebilmek için giriş yapman gerekiyor 😔, aramızda seni de görmek isteriz 😇') {
+    const elem = document.querySelector('#login');
+    const instance = new M.Modal.getInstance(elem);
+    $('#loginTitle').text('👻 Selam! 👋')
+    $('#loginText').text(text)
+    instance.open()
+  }
+
+  firebase.auth().onAuthStateChanged(user => {
+    // console.log(user);
+    if (user) {
+      return user.getIdToken()
+        .then((token) => {
+          // eslint-disable-next-line no-undef
+          return fetch('/api/login', {
+            method: 'POST',
+            // eslint-disable-next-line no-undef
+            headers: new Headers({ 'Content-Type': 'application/json' }),
+            credentials: 'same-origin',
+            body: JSON.stringify({ token })
+          })
+        }).then((res) => console.log(res))
+    } else {
+      // eslint-disable-next-line no-undef
+      fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      })
+      if (window.location.pathname !== '/' && window.location.pathname !== '/ozet' && firebase.auth().currentUser === null && !window.location.pathname.startsWith('/~')) {
+        setTimeout(function () {
+          closeModalAndSuggestLogin()
+        }, 3500);
+      }
+    }
+  })
+
+  let doc;
+
+  $(document).on('click', '#uploadModal', () => {
+    // console.log('...')
+    if (!firebase.auth().currentUser) {
+      const elem = document.querySelector('#uploadModal');
+      const instance = new M.Modal.getInstance(elem);
+      instance.close()
+      closeModalAndSuggestLogin("Döküman yükleyebilmek için giriş yapman gerekiyor, seni aramızda görmek isteriz!")
+    }
+  })
+
+  const userProfile = $('.userProfile')
+
+  $(document).on('click', '.doLogin', function() {
+    const provider = $(this).data('provider');
+    handleLogin(provider)
+  })
+
+  $(document).on('click', '.doLogout', function() {
+    handleLogout()
+  })
 
 
   document.getElementById('file').addEventListener('change', handleFileSelect, false);
@@ -152,7 +139,7 @@ $(document).ready(() => {
             })
           })
           .catch(error => {
-            console.log(error);
+            // console.log(error);
             M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok veya bir problem oldu :)`, classes: 'rounded'});
           })
 
@@ -166,13 +153,13 @@ $(document).ready(() => {
                   M.toast({html: `Dökümanın %${Math.round(progress)}'si yüklenmişken durduruldu`, classes: 'rounded'});
                   break;
                 case firebase.storage.TaskState.RUNNING: // or 'running'
-                  console.log('Upload is running');
+                  // console.log('Upload is running');
                   break;
               }
             }, function(error) {
               // Handle unsuccessful uploads
             }, function() {
-              console.log('Upload done!');
+              // console.log('Upload done!');
             });
 
 
@@ -210,7 +197,7 @@ $(document).ready(() => {
     pdfDocRef.delete().then(function() {
       M.toast({html: `Döküman başarıyla silindi.`, classes: 'rounded'});
     }).catch(function(error) {
-      console.log(error);
+      // console.log(error);
       M.toast({html: `Döküman silinirken problem oldu, yetkiliye ulaşın.`, classes: 'rounded'});
     });
   });
@@ -226,7 +213,7 @@ $(document).ready(() => {
       })
       .catch(function(error) {
         M.toast({html: `Döküman silinirken hata oluştu.`, classes: 'rounded'})
-        console.log(error)
+        // console.log(error)
       })
   });
 
@@ -298,37 +285,6 @@ $(document).ready(() => {
 
   });
 
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      return user.getIdToken()
-        .then((token) => {
-          // eslint-disable-next-line no-undef
-          return fetch('/api/login', {
-            method: 'POST',
-            // eslint-disable-next-line no-undef
-            headers: new Headers({ 'Content-Type': 'application/json' }),
-            credentials: 'same-origin',
-            body: JSON.stringify({ token })
-          })
-        }).then((res) => console.log(res))
-    } else {
-      // eslint-disable-next-line no-undef
-      fetch('/api/logout', {
-        method: 'POST',
-        credentials: 'same-origin'
-      })
-      if (window.location.pathname !== '/' && window.location.pathname !== '/ozet' && firebase.auth().currentUser === null) {
-        const elem = document.querySelector('#login');
-        const instance = new M.Modal.getInstance(elem);
-        setTimeout(function () {
-          $('#loginTitle').text('👻 Selam! 👋')
-          $('#loginText').text('Dökümanı görüntüleyebilmek için giriş yapman gerekiyor 😔, aramızda seni de görmek isteriz 😇')
-          instance.open()
-        }, 3500);
-      }
-    }
-  })
-
   function handleLogin (provider) {
     let authProvider;
     switch (provider) {
@@ -342,6 +298,7 @@ $(document).ready(() => {
     }
     firebase.auth().signInWithPopup(authProvider)
       .then(result => {
+        // console.log('burada user giriş yaptı', result);
         const {name, photoURL, displayName} = result.user;
 
         $('.name').text(displayName)
@@ -361,7 +318,7 @@ $(document).ready(() => {
         }
       })
       .catch((error) => {
-        console.log(error)
+        // console.log(error)
       })
   }
 
@@ -381,8 +338,19 @@ $(document).ready(() => {
     }
   }
 
-  if (window.location.pathname === '/ozet') {
+  if (window.location.pathname.startsWith('/ozet')) {
+    const isUpdate = window.location.pathname.startsWith('/ozet/duzenle')
+    if (isUpdate) {
+      let slug = decodeURI(window.location.pathname.split('/ozet/duzenle/')[1])
+      // console.log(slug);
+       db.collection('syllabus').where('slug', '==', slug)
+        .get()
+        .then(snapShot => snapShot.docs[0].data())
+        .then(syl => editor.setData(syl.content))
+    }
     $(document).on('click', '.saveSyllabus',async () => {
+      M.toast({html: `Süper, özet içeriğini hemen işliyorum!`, classes: 'rounded'})
+
       let content = editor.getData() // HTML
       let context = jQuery(content).text() // TEXT
       let title = jQuery(jQuery(content)[0]).text()
@@ -391,15 +359,15 @@ $(document).ready(() => {
       	lower: true
       })
 
-      console.log(slug);
-
-      try {
-        let checkSlug = await db.collection('syllabus').where('slug', '==', slug).get()
-        if (checkSlug.size !== 0) {
-          slug += `-${checkSlug.size}`
+      if (!isUpdate) {
+        try {
+          let checkSlug = await db.collection('syllabus').where('slug', '==', slug).get()
+          if (checkSlug.size !== 0) {
+            slug += `-${checkSlug.size}`
+          }
+        } catch (e) {
+          console.log(e) // TODO @cagataycali bugsnag
         }
-      } catch (e) {
-        console.log(e) // TODO @cagataycali bugsnag
       }
 
       const date = new Date()
@@ -415,33 +383,52 @@ $(document).ready(() => {
         	lower: true
         }).split(' ').join('')
       }
+      if (isUpdate) {
+        try {
+          db.doc(`syllabus/${slug}`).update({
+            title,
+            content,
+            context,
+            date,
+          })
+        } catch (e) {
+          console.log(e);
+        } finally {
 
-      db.doc(`syllabus/${slug}`).set({
-        title,
-        content,
-        context,
-        slug,
-        date,
-        uid,
-        displayName,
-        photoURL,
-        userSlug
-      })
-      M.toast({html: `Özet başarıyla yayınlandı.`, classes: 'rounded'})
+        }
+        M.toast({html: `Özet güncellendi.`, classes: 'rounded'})
+      } else {
+        db.doc(`syllabus/${slug}`).set({
+          title,
+          content,
+          context,
+          slug,
+          date,
+          uid,
+          displayName,
+          photoURL,
+          userSlug,
+          hasProcessed: false
+        })
+        M.toast({html: `Özet başarıyla yayınlandı.`, classes: 'rounded'})
+      }
       M.toast({html: `5 Saniye içerisinde özete yönlendirileceksiniz...`, classes: 'rounded'})
       setTimeout(() => {
         window.location = `/~${slug}`
       }, 5000)
+
     })
   }
 
   if (window.location.pathname.startsWith('/~')) {
     let slug = decodeURI(window.location.pathname.split('/~')[1])
-    console.log(slug);
+    setTimeout(function () {
+      closeModalAndSuggestLogin("Bu özet işine yaradı mı 🧠, sende bu tarz özetleri oluşturabilir 💪 ve biz arkadaşlarına yardımcı olabilirsin 🤓")
+    }, 10 * 1000);
     async function getSyllabus(slug) {
       let snapshot = await db.doc(`syllabus/${slug}`).get()
       let data = snapshot.data()
-      console.log(data);
+      // console.log(data);
 
 
       function getId(url) {
@@ -463,7 +450,7 @@ $(document).ready(() => {
             let p = document.createElement('p')
             p.innerHTML = generateIFrame(id)
             object[i] = p
-            console.log(i);
+            // console.log(i);
           } else {
             object[i]
           }
@@ -472,7 +459,60 @@ $(document).ready(() => {
       $('.content').html(object).slideDown('slow')
     }
     getSyllabus(slug)
+
+    $(document).on('click', '.removeSyllabus', () => {
+      const slug = decodeURI(window.location.pathname.split('/~')[1])
+      // console.log(slug);
+      M.toast({html: `Özet bilgi dağarcığımızı en iyi yansıtma yönümüzdü ama..`, classes: 'rounded'})
+      db.doc(`syllabus/${slug}`)
+        .delete()
+        .then(function() {
+          M.toast({html: `Özet başarıyla silindi.`, classes: 'rounded'})
+          setTimeout(() => {
+            window.location = `/`
+          }, 1000)
+        })
+        .catch(function(error) {
+          M.toast({html: `Özet silinirken hata oluştu.`, classes: 'rounded'})
+          // console.log(error)
+        })
+    })
   }
+
+  $(document).on('click', '.notifications', async () => {
+    if (!firebase.auth().currentUser) {
+      M.toast({html: `Bildirimler çok rahatsız edici değil mi sence de?`, classes: 'rounded'})
+      M.toast({html: `Bunu gerçekten istiyorsan giriş yapmanı tavsiye ederim.`, classes: 'rounded'})
+      closeModalAndSuggestLogin()
+      return
+    }
+    const {uid} = firebase.auth().currentUser;
+
+    const messaging = firebase.messaging()
+    await messaging.requestPermission()
+      .catch(console.log)
+    messaging.getToken()
+    .then(function(token) {
+      if (token) {
+        // console.log(token);
+        db.doc(`user/${uid}`).update({token}).then(() => console.log('Token saved')).catch(console.log)
+      } else {
+        // Show permission request.
+        // console.log('No Instance ID token available. Request permission to generate one.')
+        messaging.requestPermission()
+          .catch(console.log)
+      }
+    })
+    .catch(console.log)
+
+    messaging.onTokenRefresh(function() {
+      messaging.getToken()
+      .then(function(refreshedToken) {
+        db.doc(`user/${uid}`).update({token: refreshedToken}).then(() => console.log('Token saved')).catch(console.log)
+      })
+      .catch(console.log)
+    })
+  })
 
   $(document).on('click', '.goTo', function() {
     window.location = `/~${$(this).attr('id')}`

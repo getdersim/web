@@ -1,3 +1,17 @@
 //- #fab.fixed-action-btn
 //-   a.btn-floating.btn-large.green.lighten-3
 //-     i.large.material-icons save
+
+#fab.fixed-action-btn
+  a.btn-floating.btn-large.red
+    i.large.material-icons attach_file
+  ul.clearList
+    li(style="list-style-type:none" alt="Özet oluştur")
+      a.btn-floating.yellow.darken-1(href="/ozet")
+        i.material-icons format_quote
+    li(style="list-style-type:none" alt="Döküman yükle")
+      a.btn-floating.blue.modal-trigger.modalLink(href="#uploadModal")
+        i.material-icons attach_file
+    li(style="list-style-type:none" alt="Bildirimleri aç")
+      a.btn-floating.green.modal-trigger.notifications
+        i.material-icons notifications

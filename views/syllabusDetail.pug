@@ -64,4 +64,20 @@ block content
 
     include components/login.pug
     include components/settings.pug
+    if isOwner
+      #fab.fixed-action-btn
+       a.btn-floating.btn-large.purple.accent-3
+         i.large.material-icons settings
+       ul.clearList
+         li.clearList.removeSyllabus
+           a.btn-floating.red.darken-1
+             i.material-icons remove_circle
+         li.clearList
+           a.btn-floating.green(href='/ozet/duzenle/'+syllabus.slug)
+             i.material-icons edit
+
+
+      
+    
+    
            

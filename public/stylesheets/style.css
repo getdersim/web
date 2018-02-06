@@ -108,7 +108,7 @@ body {
 
 
 .clearList {
-  list-style-type: none;
+  list-style-type: none !important;
   padding-left: 0;
 }
 
@@ -119,4 +119,8 @@ body {
 
 .goTo {
   cursor: pointer;
+}
+
+figure > img {
+  max-width: 250px;
 }
