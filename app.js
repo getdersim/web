@@ -30,9 +30,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(bodyParser.json())
 app.use(session({
-  secret: '2017CCDersIm',
+  secret: '2018CCDersIm',
   saveUninitialized: true,
-  store: new FileStore({path: '/tmp/sessions', secret: '2017CCDersIm'}),
+  store: new FileStore({path: '/tmp/sessions', secret: '2018CCDersIm'}),
   resave: false,
   rolling: true,
   httpOnly: true,

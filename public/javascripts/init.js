@@ -29,7 +29,40 @@ $(document).ready(() => {
   firebase.initializeApp(config)
   const db = firebase.firestore()
   const messaging = firebase.messaging()
-  window.firebase = firebase
+
+  async function notifications() {
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+      M.toast({html: `Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim özelliğini kullanabilirsin.`, classes: 'rounded'})
+      return
+    }
+    const {uid} = user
+
+    await messaging.requestPermission()
+      .catch(console.log)
+    messaging.getToken()
+    .then(function(token) {
+      if (token) {
+        db.doc(`user/${uid}`).update({token}).catch(console.log)
+      } else {
+        // Show permission request.
+        console.log('No Instance ID token available. Request permission to generate one.')
+        M.toast({html: `Size bildirim gönderebilmemiz için bildirim ayarlarınızdan izin vermiş olmanız gerekiyor :(`, classes: 'rounded'})
+        messaging.requestPermission()
+          .catch(console.log)
+      }
+    })
+    .catch(console.log)
+
+    messaging.onTokenRefresh(function() {
+      messaging.getToken()
+      .then(function(refreshedToken) {
+        db.doc(`user/${uid}`).update({token: refreshedToken}).catch(console.log)
+      })
+      .catch(console.log)
+    })
+  }
 
   function closeModalAndSuggestLogin(text = 'Dökümanı indirmeden görüntüleyebilmek, yayınlayan kişiden bildirim alabilmek gibi güzel özelliklerimizi kullanabilmek için giriş yapman gerekiyor 😔, aramızda seni de görmek isteriz 😇') {
     const elem = document.querySelector('#login');
@@ -55,22 +88,25 @@ $(document).ready(() => {
 
           if (window.location.pathname.startsWith('/@')) {
             const user = firebase.auth().currentUser
-            if (!user) {
-              M.toast({html: `Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim butonunu kullanabilirsin.`, classes: 'rounded'})
-            }
             const uid = $('.enableNotifications').attr('uid') // Visited Profile UID
             let query = `user/${uid}/follower/${user.uid}`
-
+            let enableNotif = $('.enableNotifications > a > i')
             db.doc(query).get().then(amIFollower).catch(console.log)
 
             function amIFollower (amI) {
-              console.log(amI.exists, 'ben takip ediyom mu');
               $('.enableNotifications > a > i').html(amI.exists ? 'notifications_active': 'notifications')
             }
 
-            // $('.enableNotifications > a > i').html('notifications_active') // Bildirimler açık
+            // enableNotif.html('notifications_active') // Bildirimler açık
             $(document).on('click', '.enableNotifications', async function() {
-              let isUnfollow = $('.enableNotifications > a > i').html() === 'notifications_active'
+
+              if (!user) {
+                M.toast({html: `Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim özelliğini kullanabilirsin.`, classes: 'rounded'})
+                return
+              }
+              notifications()
+
+              let isUnfollow = enableNotif.html() === 'notifications_active'
               if (!user) {
                 M.toast({html: `Giriş yapmadığın için bildirimleri takip edemezsin :(`, classes: 'rounded'})
                 return
@@ -81,11 +117,10 @@ $(document).ready(() => {
                 M.toast({html: `Süpeer, artık kullanıcının yüklediği dökümanları tarayıcı bildirimi olacak alabileceksin..`, classes: 'rounded'})
               }
               let meta = await db.doc(`user/${user.uid}`).get().then(snap => snap.data()).catch(console.log)
-              console.log(meta);
 
               if (isUnfollow) {
                 db.doc(query).delete().catch(console.log)
-                $('.enableNotifications > a > i').html('notifications')
+                enableNotif.html('notifications')
               } else {
                 db.doc(query)
                 .set({
@@ -95,13 +130,10 @@ $(document).ready(() => {
                 	slug: meta.slug,
                 	uid: user.uid
                 })
-                $('.enableNotifications > a > i').html('notifications_active')
+                enableNotif.html('notifications_active')
               }
-
-
             })
           }
-
         })
     } else {
       // eslint-disable-next-line no-undef
@@ -109,10 +141,13 @@ $(document).ready(() => {
         method: 'POST',
         credentials: 'same-origin'
       })
-      if (window.location.pathname !== '/' && window.location.pathname === '/ozet' && firebase.auth().currentUser === null) {
+      if (window.location.pathname !== '/' && firebase.auth().currentUser === null) {
         setTimeout(function () {
           if (window.location.pathname.startsWith('/~')) {
             closeModalAndSuggestLogin("Bu özet işine yaradı mı 🧠, sende bu tarz özetleri oluşturabilir 💪 ve biz arkadaşlarına yardımcı olabilirsin 🤓")
+          } else if (window.location.pathname.startsWith('/~')) {
+            M.toast({html: `Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim özelliğini kullanabilirsin.`, classes: 'rounded'})
+            closeModalAndSuggestLogin()
           } else {
             closeModalAndSuggestLogin()
           }
@@ -155,8 +190,6 @@ $(document).ready(() => {
     }
 
     var files = evt.target.files;
-    window.e = evt;
-    // return;
 
     for (var i = 0, f; f = files[i]; i++) {
 
@@ -185,14 +218,11 @@ $(document).ready(() => {
 
             storageRef.child(date).getDownloadURL().then(function(url) {
               doc = {name: date, url, id: file, type: EXTENTION};
-              // TODO @cagataycali when user delete things dom have to change.
-              // TODO @cagataycali magic happen here. PDF TO GIF.
               M.toast({html: `Döküman başarıyla yüklendi.`, classes: 'rounded'});
               $('.publishDocument').removeClass('disabled');
             })
           })
           .catch(error => {
-            console.log(error);
             M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok veya bir problem oldu :)`, classes: 'rounded'});
           })
 
@@ -206,7 +236,6 @@ $(document).ready(() => {
                   M.toast({html: `Dökümanın %${Math.round(progress)}'si yüklenmişken durduruldu`, classes: 'rounded'});
                   break;
                 case firebase.storage.TaskState.RUNNING: // or 'running'
-                  console.log('Upload is running');
                   break;
               }
             }, function(error) {
@@ -250,7 +279,6 @@ $(document).ready(() => {
     pdfDocRef.delete().then(function() {
       M.toast({html: `Döküman başarıyla silindi.`, classes: 'rounded'});
     }).catch(function(error) {
-      console.log(error);
       M.toast({html: `Döküman silinirken problem oldu, yetkiliye ulaşın.`, classes: 'rounded'});
     });
   });
@@ -266,14 +294,12 @@ $(document).ready(() => {
       })
       .catch(function(error) {
         M.toast({html: `Döküman silinirken hata oluştu.`, classes: 'rounded'})
-        console.log(error)
       })
   });
 
   $(document).on('click', '.editDoc', async () => {
     let title = $('#title').text()
     let description = $('#description').text()
-    console.log(title, description);
     $('#editTitle').val(title)
     $('#editDescription').val(description)
   })
@@ -319,10 +345,7 @@ $(document).ready(() => {
         }
       } catch (e) {
         console.log(e)
-      } finally {
-        console.log(slug)
       }
-
       const date = new Date()
       const {displayName, photoURL, uid} = firebase.auth().currentUser;
       let userSlug
@@ -375,7 +398,6 @@ $(document).ready(() => {
     }
     firebase.auth().signInWithPopup(authProvider)
       .then(result => {
-        console.log('burada user giriş yaptı', result);
         const {name, photoURL, displayName} = result.user;
 
         $('.name').text(displayName)
@@ -394,9 +416,7 @@ $(document).ready(() => {
           }, 4500);
         }
       })
-      .catch((error) => {
-        console.log(error)
-      })
+      .catch(console.log)
   }
 
   function handleLogout () {
@@ -419,7 +439,6 @@ $(document).ready(() => {
     const isUpdate = window.location.pathname.startsWith('/ozet/duzenle')
     if (isUpdate) {
       let slug = decodeURI(window.location.pathname.split('/ozet/duzenle/')[1])
-      console.log(slug);
        db.collection('syllabus').where('slug', '==', slug)
         .get()
         .then(snapShot => snapShot.docs[0].data())
@@ -470,8 +489,6 @@ $(document).ready(() => {
           })
         } catch (e) {
           console.log(e);
-        } finally {
-
         }
         M.toast({html: `Özet güncellendi.`, classes: 'rounded'})
       } else {
@@ -501,8 +518,6 @@ $(document).ready(() => {
     async function getSyllabus(slug) {
       let snapshot = await db.doc(`syllabus/${slug}`).get()
       let data = snapshot.data()
-      console.log(data);
-
 
       function getId(url) {
           var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -523,7 +538,6 @@ $(document).ready(() => {
             let p = document.createElement('p')
             p.innerHTML = generateIFrame(id)
             object[i] = p
-            console.log(i);
           } else {
             object[i]
           }
@@ -535,7 +549,6 @@ $(document).ready(() => {
 
     $(document).on('click', '.removeSyllabus', () => {
       const slug = decodeURI(window.location.pathname.split('/~')[1])
-      console.log(slug);
       M.toast({html: `Özet bilgi dağarcığımızı en iyi yansıtma yönümüzdü ama..`, classes: 'rounded'})
       db.doc(`syllabus/${slug}`)
         .delete()
@@ -547,7 +560,6 @@ $(document).ready(() => {
         })
         .catch(function(error) {
           M.toast({html: `Özet silinirken hata oluştu.`, classes: 'rounded'})
-          console.log(error)
         })
     })
   }
@@ -559,32 +571,7 @@ $(document).ready(() => {
       closeModalAndSuggestLogin()
       return
     }
-    const {uid} = firebase.auth().currentUser;
-
-    await messaging.requestPermission()
-      .catch(console.log)
-    messaging.getToken()
-    .then(function(token) {
-      if (token) {
-        console.log(token);
-        db.doc(`user/${uid}`).update({token}).then(() => console.log('Token saved')).catch(console.log)
-      } else {
-        // Show permission request.
-        console.log('No Instance ID token available. Request permission to generate one.')
-        M.toast({html: `Size bildirim gönderebilmemiz için bildirim ayarlarınızdan izin vermiş olmanız gerekiyor :(`, classes: 'rounded'})
-        messaging.requestPermission()
-          .catch(console.log)
-      }
-    })
-    .catch(console.log)
-
-    messaging.onTokenRefresh(function() {
-      messaging.getToken()
-      .then(function(refreshedToken) {
-        db.doc(`user/${uid}`).update({token: refreshedToken}).then(() => console.log('Token refreshed')).catch(console.log)
-      })
-      .catch(console.log)
-    })
+    notifications()
   })
 
   $(document).on('click', '.goTo', function() {

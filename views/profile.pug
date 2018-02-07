@@ -2,6 +2,27 @@ extends layout
 
 block head
   title= 'Ders.im | ' + profile.displayName
+  link(rel='canonical', href='https://ders.im/@'+profile.slug)
+  meta(itemprop='name', content="Ders.im | " + profile.displayName)
+  meta(itemprop='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(property='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(name='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(property='image', itemprop='image', content=profile.photoURL)
+  meta(name='image', itemprop='image', content=profile.photoURL)
+  meta(property='twitter:card', content='summary_large_image')
+  meta(property='twitter:title', content="Ders.im")
+  meta(property='twitter:description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(property='twitter:creator', content='@cagataycali')
+  meta(property='twitter:image', content=profile.photoURL)
+  meta(name='twitter:image', content=profile.photoURL)
+  meta(property='og:title', content="Ders.im | " + profile.displayName)
+  meta(property='og:description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(property='og:image', content=urunler[0].photoURL)
+  meta(property='og:image:alt', content=profile.photoURL)
+  meta(property='og:url', content='https://ders.im/@'+profile.slug)
+  meta(property='og:site_name', content='https://ders.im')
+  meta(property='og:locale', content='tr')
+  meta(property='og:type', content='website')
   
 block content
   include components/navigation.pug

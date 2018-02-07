@@ -2,17 +2,18 @@ extends layout
 
 block head
   title= title
-  meta(itemprop='name', content='Ders.im')
+  link(rel='canonical', href='https://ders.im/dokuman/'+doc.slug)
+  meta(itemprop='name', content=doc.title + ' | Ders.im')
   meta(itemprop='description', content=doc.title + ' | Ders.im')
   meta(property='twitter:card', content='summary_large_image')
   meta(property='twitter:title', content='Ders.im')
-  meta(property='twitter:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://beta.ders.im')
+  meta(property='twitter:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://ders.im')
   meta(property='twitter:site', content='@getdersim')
   meta(property='twitter:creator', content='@cagataycali')
   
   meta(property='og:title', content=doc.title + ' | Ders.im')
-  meta(property='og:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://beta.ders.im')
-  meta(property='og:url', content='https://beta.ders.im/dokuman/' + doc.slug)
+  meta(property='og:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://ders.im')
+  meta(property='og:url', content='https://ders.im/dokuman/' + doc.slug)
   meta(property='og:site_name', content='Ders.im')
   meta(property='og:locale', content='tr')
   meta(property='og:type', content='website')
@@ -64,7 +65,7 @@ block content
               img.circle.hoverable(src=doc.photoURL)
             p(style="margin-top: 10px") #{doc.displayName}
     
-    .fb-comments(data-href='https://beta.ders.im/dokuman/' + doc.slug, data-numposts='5' width='100%')
+    .fb-comments(data-href='https://ders.im/dokuman/' + doc.slug, data-numposts='5' width='100%')
                         
     include components/login.pug
     include components/settings.pug
