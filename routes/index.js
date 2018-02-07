@@ -24,15 +24,20 @@ router.get('/dokuman/:slug?', async (req, res) => {
   }
   const user = req.session.decodedToken
   const slug = req.params.slug
+
   try {
     let snapshot = await db.doc(`document/${slug}`).get()
     let data = snapshot.data()
 
-    let isOwner = false
-    // console.log(data)
-    if ((user && data.uid === user.uid) || data.isAdmin) {
-      isOwner = true
+    let isOwner
+    try {
+      if ((user && data.uid === user.uid) || (user && user.isAdmin)) {
+        isOwner = true
+      }
+    } catch (e) {
+      isOwner = false
     }
+
     let pdf = null
     // If user loggedIn render pdf.
     try {
@@ -58,15 +63,15 @@ router.get('/ozet', async (req, res) => {
   const user = req.session.decodedToken
   res.render('syllabus', { title: `Ders.im | Özet`, user })
 })
+
 /* GET syllabus page. */
 router.get('/ozet/duzenle/:slug', async (req, res) => {
   const user = req.session.decodedToken
   let snapshot = await db.doc(`syllabus/${req.params.slug}`).get()
   let data = snapshot.data()
-  console.log(data)
   let isOwner = false
   // console.log(data)
-  if ((user && data.uid === user.uid) || data.isAdmin) {
+  if ((user && data.uid === user.uid) || user.isAdmin) {
     isOwner = true
   }
   res.render('syllabus', { title: `Ders.im | Özet`, user, syl: data, isOwner })
@@ -83,8 +88,7 @@ router.get('/~:slug', async (req, res) => {
     let data = snapshot.data()
 
     let isOwner = false
-    // console.log(data)
-    if ((user && data.uid === user.uid) || data.isAdmin) {
+    if ((user && data.uid === user.uid) || (user && user.isAdmin)) {
       isOwner = true
     }
 
@@ -125,7 +129,7 @@ router.get('/@:slug?', async (req, res) => {
     })
   } catch (e) {
     console.log(e)
-    res.redirect(404, '/')
+    res.redirect(302, '/')
   }
 })
 

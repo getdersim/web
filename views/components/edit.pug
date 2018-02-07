@@ -1,0 +1,20 @@
+#editModal.modal.modal-fixed-footer
+  .modal-content
+    h4 Ders Dökümanı Düzenle
+    p Hmm, dökümanın başlığı ve açıklaması konusunda kararsızsan yardımım dokunabilir.
+    p Döküman başlığının 10 karakterden uzun 50 karakterden kısa olmasını tavsiye ediyoruz.
+    .row
+      form.col.s12
+        .row
+          .input-field.col.s12
+            input#editTitle.validate(placeholder='Döküman başlığınız', type='text' required="true" minlength=10 data-length="50")
+            label(for='title') Başlık
+        .row
+          .input-field.col.s12
+            input#editDescription.materialize-textarea.validate(placeholder='Döküman açıklamanız' type='text' minlength=10 required="true" data-length="100")
+            label(for='description') Açıklama
+            
+  .modal-footer
+      a.waves-effect.waves-blue.btn.modal-action.modal-close.updateDocument(id="data-id")
+        i.material-icons.right done_all
+        | Kaydet

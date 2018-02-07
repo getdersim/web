@@ -59,9 +59,10 @@ block content
             .circle-clipper.right
               .circle
       .content(style="display:none")
+      .signature(style="margin:20px")
+        a(href='/@'+syllabus.userSlug) #{syllabus.displayName} tarafından derlenmiştir.
       .fb-comments(data-href='https://beta.ders.im/~' + syllabus.slug, data-numposts='5' width='100%')
       
-
     include components/login.pug
     include components/settings.pug
     if isOwner

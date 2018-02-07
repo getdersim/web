@@ -3,7 +3,6 @@ extends layout
 block head
   title= 'Ders.im | ' + profile.displayName
   
-
 block content
   include components/navigation.pug
   .container
@@ -32,3 +31,6 @@ block content
                 a(href='/dokuman/' + doc.slug) Detayına git...    
     include components/login.pug
     include components/settings.pug
+    #fab.fixed-action-btn.enableNotifications(uid=profile.uid)
+      a.btn-floating.btn-large.green
+        i.large.material-icons.notificationIcon notifications

@@ -49,10 +49,10 @@ block content
       .col.s12.m4(style="margin-top:-7px")
         ul.collection.with-header.clearList
           li.collection-header
-            h1(style="font-size:1.5em;margin:0px") #{doc.title}
+            h1#title(style="font-size:1.5em;margin:0px") #{doc.title}
           li.collection-item.avatar
-            i.material-icons.circle.purple.lighten-2.hoverable subject
-            p #{doc.description}
+            i.material-icons.circle.brown.lighten-4.hoverable subject
+            p#description #{doc.description}
           li.collection-item.avatar
             i.material-icons.circle.amber.accent-2.hoverable today
             p(style="margin-top: 10px") #{moment(doc.date).fromNow()}
@@ -63,17 +63,21 @@ block content
             a(href="/@" + doc.userSlug)
               img.circle.hoverable(src=doc.photoURL)
             p(style="margin-top: 10px") #{doc.displayName}
-          if (user && user.isAdmin) || isOwner
-            li.collection-item.avatar
-              i.material-icons.circle.blue.lighten-2.hoverable build
-              p
-                |
-                a.waves-effect.waves-light.btn.red.deleteDocument
-                  i.material-icons.right delete
-                  | Kaldır  
     
     .fb-comments(data-href='https://beta.ders.im/dokuman/' + doc.slug, data-numposts='5' width='100%')
                         
     include components/login.pug
     include components/settings.pug
+    include components/edit.pug
+  if isOwner
+    #fab.fixed-action-btn
+     a.btn-floating.btn-large.purple.accent-3
+       i.large.material-icons settings
+     ul.clearList
+       li.clearList.deleteDocument
+         a.btn-floating.red.darken-1
+           i.material-icons remove_circle
+       li.clearList
+         a.btn-floating.green.editDoc.modal-trigger.modalLink(href="#editModal")
+           i.material-icons edit
            

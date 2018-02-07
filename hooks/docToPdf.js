@@ -21,7 +21,6 @@ module.exports = async (url, type) => {
   try {
     await downloadFile(url, {directory: '.', filename})
   } catch (e) {
-    console.log(e)
     return null
   }
   const execDir = (platform() === 'darwin' && '/Applications/LibreOffice.app/Contents/MacOS/soffice') ||
@@ -30,7 +29,7 @@ module.exports = async (url, type) => {
   const { stderr } = await exec(`${execDir} --headless --convert-to pdf --outdir . ${filename}`)
   require('fs').unlinkSync(filename)
   if (stderr) {
-    console.log(stderr)
+    console.log(stderr); // TODO @cagataycali bugsnag
   } else {
     return `${time}.pdf`
   }

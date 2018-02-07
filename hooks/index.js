@@ -80,6 +80,7 @@ const generatePDF = async (url, type) => {
     // Generate PDF
     console.log('Download success, pdf generating')
     let filename = await P(url, type)
+    console.log(filename, url, type);
     await bucket.upload(filename)
     let [generatedFile] = await bucket.file(filename).getSignedUrl({
       action: 'read',
