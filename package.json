@@ -6,7 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "algoliasearch": "^3.24.11",
     "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "download-file": "^0.1.5",
@@ -14,12 +16,17 @@
     "express-session": "^1.15.6",
     "firebase": "^4.9.0",
     "firebase-admin": "^5.8.1",
+    "google": "^2.1.0",
+    "google-search": "^0.0.5",
+    "googleapis": "^26.0.1",
     "jstransformer-markdown-it": "^2.0.0",
     "moment": "^2.20.1",
     "moment-timezone": "^0.5.14",
     "morgan": "~1.9.0",
     "pug": "2.0.0-beta11",
     "puppeteer": "^1.0.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
     "serve-favicon": "~2.4.5",
     "session-file-store": "^1.2.0",
     "slugify": "^1.2.6"

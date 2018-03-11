@@ -4,23 +4,23 @@ block head
   title= title
   link(rel='canonical', href='https://ders.im/dokuman/'+doc.slug)
   meta(itemprop='name', content=doc.title + ' | Ders.im')
-  meta(itemprop='description', content=doc.title + ' | Ders.im')
+  meta(itemprop='description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://ders.im')
   meta(property='twitter:card', content='summary_large_image')
   meta(property='twitter:title', content='Ders.im')
   meta(property='twitter:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://ders.im')
   meta(property='twitter:site', content='@getdersim')
   meta(property='twitter:creator', content='@cagataycali')
-  
+  meta(name="keywords" content=keywords)
   meta(property='og:title', content=doc.title + ' | Ders.im')
   meta(property='og:description', content=doc.title + '- ' + doc.description + ' '+ doc.displayName +' tarafından ' + moment(doc.date).fromNow() +' yayınlandı. | https://ders.im')
   meta(property='og:url', content='https://ders.im/dokuman/' + doc.slug)
   meta(property='og:site_name', content='Ders.im')
   meta(property='og:locale', content='tr')
   meta(property='og:type', content='website')
-  if doc.hasPreview
-    meta(name='image', itemprop='image', content=doc.gif.url)
-    meta(property='twitter:image', content=doc.gif.url)
-    meta(property='og:image', content=doc.gif.url)
+  if doc.hasPreview && doc.hasProcessed
+    meta(name='image', itemprop='image', content=doc.thumbnail.url)
+    meta(property='twitter:image', content=doc.thumbnail.url)
+    meta(property='og:image', content=doc.thumbnail.url)
     meta(property='og:image:type', content='image/gif')
       
 block content
@@ -37,6 +37,11 @@ block content
             p Giriş yaparak dosyayı işlenmeden önce görüntüleyebilirsiniz. 
           else
             img(style="width:100%" src=doc.gif.url alt=doc.description)
+
+            //- if limit > 0 || first
+            //-   iframe(src='https://pdf.ders.im?url='+pdf.url style="width:100%; height:500px;" frameborder="0")    
+            //- else  
+            //-   img(style="width:100%" src=doc.gif.url alt=doc.description)
         else      
           if !doc.hasProcessed
             .progress
@@ -56,17 +61,93 @@ block content
             p#description #{doc.description}
           li.collection-item.avatar
             i.material-icons.circle.amber.accent-2.hoverable today
-            p(style="margin-top: 10px") #{moment(doc.date).fromNow()}
+            p(style="margin-top: 10px") #{moment(doc.date).fromNow()} - #{moment(doc.date).format('DD/MM/YYYY HH:mm')}
           if doc.hasPreview
             li.collection-item
-              a.waves-effect.waves-light.btn-large(href=pdf.originalFile target='_blank') Dosyayı İndir (.#{doc.type})
+              a.waves-effect.waves-light.btn-large.downloadButton(href=pdf.originalFile target='_blank') Dosyayı indir (.#{doc.type})
+            //- if limit > 0 || first
+            //-   li.collection-item
+            //-     a.waves-effect.waves-light.btn-large.downloadButton(href=pdf.originalFile target='_blank') Dosyayı indir (.#{doc.type})
+            //- else
+            //-   li.collection-item
+            //-     a.waves-effect.waves-light.btn-large.downloadButton.modal-trigger(href='#share') Dosyayı indir (.#{doc.type})      
+          if doc.source
+            li.collection-item.avatar
+              i.material-icons.circle.green.lighten-4.hoverable link
+              a#source(href=doc.source target="_blank" rel="nofollow") #{doc.source}
+          if doc.keywords
+            li.collection-item
+              each keyword in doc.keywords
+                a(href='/kategori/'+keyword.slug)
+                  .chip #{keyword.tag}
+
           li.collection-item.avatar
             a(href="/@" + doc.userSlug)
               img.circle.hoverable(src=doc.photoURL)
             p(style="margin-top: 10px") #{doc.displayName}
-    
+            
+      #share.modal
+        .modal-content
+          h4 Bir şans daha?
+          p.flow-text Oturum açmadan döküman indirme limitini doldurduysan ille de giriş yap demiyorum, Giriş yapmadan bir indirme hakkı daha istersen senden bir ricam olacak. Hem platformun sağlığı için, hem arkadaşlarını bu güzel dökümandan mahrum bırakmaman için. Bir paylaşımda bulun ve hak senin.
+          .center-align#share-buttons
+            // Facebook
+            a(href='http://www.facebook.com/sharer.php?u=https://ders.im/dokuman/'+doc.slug, target='_blank')
+              img(src='/images/facebook.png', alt='Facebook')
+            // Google+
+            a(href='https://plus.google.com/share?url=https://ders.im/dokuman/'+doc.slug, target='_blank')
+              img(src='/images/google.png', alt='Google')
+            // LinkedIn
+            a(href='http://www.linkedin.com/shareArticle?mini=true&url=https://ders.im/dokuman/'+doc.slug+'&title='+doc.title+'&summary='+doc.description, target='_blank')
+              img(src='/images/linkedin.png', alt='LinkedIn')
+            // Twitter
+            a(href='https://twitter.com/share?url=https://ders.im/dokuman/'+doc.slug+'&text='+doc.title+' @getdersim' target='_blank')
+              img(src='/images/twitter.png', alt='Twitter')  
+        
+      .center-align#share-buttons
+        // Facebook
+        a(href='http://www.facebook.com/sharer.php?u=https://ders.im/dokuman/'+doc.slug, target='_blank')
+          img(src='/images/facebook.png', alt='Facebook')
+        // Google+
+        a(href='https://plus.google.com/share?url=https://ders.im/dokuman/'+doc.slug, target='_blank')
+          img(src='/images/google.png', alt='Google')
+        // LinkedIn
+        a(href='http://www.linkedin.com/shareArticle?mini=true&url=https://ders.im/dokuman/'+doc.slug+'&title='+doc.title+'&summary='+doc.description, target='_blank')
+          img(src='/images/linkedin.png', alt='LinkedIn')
+        // Twitter
+        a(href='https://twitter.com/share?url=https://ders.im/dokuman/'+doc.slug+'&text='+doc.title+' @getdersim' target='_blank')
+          img(src='/images/twitter.png', alt='Twitter')  
     .fb-comments(data-href='https://ders.im/dokuman/' + doc.slug, data-numposts='5' width='100%')
-                        
+  if doc.hasPreview && doc.hasProcessed
+    script(type="application/ld+json").
+      {
+      "@context": "http://schema.org",
+      "@type": "NewsArticle",
+      "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://google.com/article"
+      },
+      "headline": "#{doc.title}",
+      "image": [
+       "#{doc.thumbnail.url}",
+       "#{doc.gif.url}"
+      ],
+      "datePublished": "#{doc.date}",
+      "dateModified": "#{doc.date}",
+      "author": {
+      "@type": "Person",
+      "name": "#{doc.displayName}"
+      },
+      "publisher": {
+      "@type": "Organization",
+      "name": "Ders.im",
+      "logo": {
+      "@type": "ImageObject",
+      "url": "https://ders.im/images/logo_w.png"
+      }
+      },
+      "description": "#{doc.description}"
+      }  
     include components/login.pug
     include components/settings.pug
     include components/edit.pug

@@ -5,7 +5,15 @@
     </header>
     <script type="text/html" id="hit-template">
       <div class="hit">
-        <div class="col s12 m4">
+        <div class="col s12 m3">
+          <div class="card" data-slug="{{doc.slug}}">
+           <a href="/dokuman/{{slug}}">
+              <div class="card-image truncateC"><img width="245" height="346" src={{thumbnail.url}} alt={{title}} style="opacity:0.4;filter:blur(1px);">
+              <span class="card-title truncateC" style="font-weight:300;filter: invert(100%);">{{title}}</span></div>
+           </a>
+           </div>
+        </div>
+        <!-- <div class="col s12 m4">
           <div class="card z-depth-3 medium sticky-action">
             <div class="card-image waves-effect waves-block waves-blue">
               <img
@@ -34,7 +42,7 @@
               <a href="dokuman/{{slug}}">Detayına git... </a>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </script>
 

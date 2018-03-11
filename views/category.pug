@@ -2,20 +2,21 @@ extends layout
 
 block head
   title= title
-  meta(itemprop='name', content='Ders.im')
+  meta(itemprop='name', content='Ders.im - '+data.title)
+  link(rel='canonical', href='https://ders.im/kategori/'+data.slug)
   meta(itemprop='description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
   meta(name='image', itemprop='image', content='/images/logo.png')
-  meta(name="keywords" content="ders notları, çalışma notları, ders çalışma dökümanı, ders notu, mühendislik notu, bilgisayar mühendisliği, dersim")
+  meta(name="keywords" content="ders notları, çalışma notları, ders çalışma dökümanı, ders notu, mühendislik notu, bilgisayar mühendisliği, dersim," +data.title)
   // Twitter Meta Headers
   meta(property='twitter:card', content='summary_large_image')
-  meta(property='twitter:title', content='Ders.im')
+  meta(property='twitter:title', content='Ders.im - '+data.title)
   meta(property='twitter:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
   meta(property='twitter:site', content='@getdersim')
   meta(property='twitter:creator', content='@cagataycali')
   meta(property='twitter:image', content='/images/logo.png')
   meta(name="description" content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
   // Open Graph general (Facebook, Pinterest & Google+)
-  meta(property='og:title', content='Ders.im')
+  meta(property='og:title', content='Ders.im - '+data.title)
   meta(property='og:description', content='Ders.im öğrencilerin birbirleriyle ders metaryellerini paylaşabilecekleri, geçen senelerde çıkmış sınav sorularını bulabilecekleri, kampüsteki kişilere soru sorabilecekleri sosyal bir platformdur.')
   meta(property='og:image', content='/images/logo.png')
   meta(property='og:url', content='https://ders.im')
@@ -29,7 +30,13 @@ block content
   include components/searchTemplate.html
 
   .container#doc
-    h5.col.s12 Son yüklenen ders materyalleri
+    h1.col.s12 #{data.title}
+    hr
+    div(style="display:flex;flex-direction:row")
+      h5.col.s12.lightText İlgili konular 
+      each topic in related
+        a(href='/kategori/'+topic.slug)
+          h5.col.s12.darkText #{topic.title}
     .row#infinite-list
       each doc in docs
         if doc.hasPreview == true
@@ -41,34 +48,16 @@ block content
                   span.card-title.truncateC(style="font-weight:300;filter: invert(100%);") #{doc.title}
                 .card-action
                   .chip.truncate
-                    img(src=doc.photoURL, alt=doc.displayName)
+                    img(src=doc.photoURL alt=doc.displayName)
                     |     #{doc.displayName}
                   .chip.truncate #{moment(doc.date).fromNow()}
       
-    .shape-separator(display="none")
-                  
-  .container#syllabus
-    h5.col.s12 Son oluşturulan özetler
-    .row
-      ul.collection.clearList
-        each syl in syllabus
-            li.collection-item.avatar.goTo(id=syl.slug)
-              img.circle(src=syl.photoURL, alt='')
-              span.title(style="font-weight: bold;") #{syl.title}
-              p
-                | #{syl.displayName} tarafından oluşturuldu.
-                br
-                |          #{moment(syl.date).fromNow()}
-              a.secondary-content(href='/~'+syl.slug)
-                i.material-icons(style="color:#2ab6f6") arrow_forward
-
-          
-                
+    .shape-separator(display="none")                
         
   include components/login.pug
   include components/settings.pug
   include components/fab.pug
     
 block javascripts
-  script(type='text/javascript', src='/javascripts/search.js')         
+  script(type='text/javascript', src='/javascripts/search.js')
   script(type='text/javascript', src='/javascripts/moment.js')         

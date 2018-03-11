@@ -9,7 +9,10 @@ $(document).ready(() => {
   $('.modal').modal();
   $('.uploadModal').modal();
   $('textarea').characterCounter();
-  // $('.materialboxed').materialbox();
+  let needPulse = true;
+
+  // Anahtar kelimere erişmek için..
+  // var instance = M.Chips.getInstance($('#keywords')[0].M_Chips.el);
 
   $('.fixed-action-btn').floatingActionButton({
    direction: 'top', // Direction menu comes out
@@ -29,6 +32,124 @@ $(document).ready(() => {
   firebase.initializeApp(config)
   const db = firebase.firestore()
   const messaging = firebase.messaging()
+
+  let categories = localStorage.getItem('categories')
+
+  if (!categories) {
+    console.log('Local storage is empty, I try to get categories');
+    db.collection('category')
+      .orderBy('count', 'desc')
+      .limit(50)
+      .get()
+      .then(snapshot => {
+        categories = snapshot.docs.map(doc => doc.data())
+        localStorage.setItem('categories', JSON.stringify(categories))
+        generateChips()
+      })
+      .catch(console.log)
+  } else {
+    console.log('Local storage have categories');
+    console.log(JSON.parse(categories));
+    generateChips()
+  }
+
+  function svgGenerator(number) {
+    if (number > 100 && number < 1000) {
+      number = '99+'
+    } else if (number > 1000 && number < 2000) {
+      number = '1k'
+    } else if (number > 2000 && number < 3000) {
+      number = '2k'
+    } else if (number > 3000 && number < 4000) {
+      number = '3k'
+    } else if (number > 4000 && number < 5000) {
+      number = '4k'
+    } else if (number > 5000 && number < 10000) {
+      number = '5k'
+    } else if (number > 10000 && number < 50000) {
+      number = '10k'
+    } else if (number > 50000 && number < 1000000) {
+      number = '50k'
+    } else if (number > 1000000) {
+      number = '1m'
+    }
+    return `https://media.ders.im/circle/${number}.png`
+  }
+
+  function generateChips () {
+    let data = {}
+    let chipsData = JSON.parse(localStorage.getItem('categories'))
+
+    chipsData.map(topic => {
+      data[topic.title] = svgGenerator(topic.count)
+    })
+    window.autocomplete = data
+
+    $('.chips-autocomplete').chips({
+      data: [],
+      autocompleteOptions: {
+        data,
+        limit: 5,
+        minLength: 1,
+      },
+      limit: 5,
+      placeholder: 'Anahtar kelime ekle',
+      secondaryPlaceholder: '+ekle',
+    })
+  }
+
+  $(document).on('click', '[href="#editModal"]', _ => {
+    let path = window.location.pathname;
+    let isDoc = path.startsWith('/dokuman/')
+    if (isDoc) {
+      let docSlug = path.split('/dokuman/')[1]
+      db.doc(`document/${docSlug}`).get().then(doc => {
+        if (doc.exists) {
+          let keywords = doc.data().keywords || []
+          $('.chips-autocomplete').chips({
+            data: keywords,
+            autocompleteOptions: {
+              data: window.autocomplete,
+              limit: 5,
+              minLength: 1,
+            },
+            limit: 5,
+            placeholder: 'Anahtar kelime ekle',
+            secondaryPlaceholder: '+ekle',
+          })
+        }
+      })
+    }
+  })
+
+  $(document).on('click', '#uploadModalTrigger', _ => {
+    db.collection('category')
+      .orderBy('count', 'desc')
+      .limit(25)
+      .get()
+      .then(snapshot => {
+        categories = snapshot.docs.map(doc => doc.data())
+        localStorage.setItem('categories', JSON.stringify(categories))
+      })
+      .catch(console.log)
+  })
+
+  try {
+    let category = document.referrer.split('/kategori/')[1]
+    let path = window.location.pathname;
+    let isDoc = path.startsWith('/dokuman/')
+    if (category.length > 0 && isDoc) {
+      let docSlug = path.split('/dokuman/')[1]
+      fetch(`/api/view/${category}/${docSlug}`).then(r => r.json())
+        .then(console.log)
+        .catch(console.log)
+    }
+  } catch (e) {
+    console.log(e);
+    console.log('H3ll0');
+  }
+
+
 
   async function notifications() {
     const user = firebase.auth().currentUser;
@@ -84,8 +205,8 @@ $(document).ready(() => {
             credentials: 'same-origin',
             body: JSON.stringify({ token })
           })
-        }).then((res) => {
-
+        }).then(res => {
+          window.limit = res.limit
           if (window.location.pathname.startsWith('/@')) {
             const user = firebase.auth().currentUser
             const uid = $('.enableNotifications').attr('uid') // Visited Profile UID
@@ -95,6 +216,7 @@ $(document).ready(() => {
 
             function amIFollower (amI) {
               $('.enableNotifications > a > i').html(amI.exists ? 'notifications_active': 'notifications')
+              amI.exists && $('#pulse').removeClass('pulse')
             }
 
             // enableNotif.html('notifications_active') // Bildirimler açık
@@ -112,9 +234,11 @@ $(document).ready(() => {
                 return
               }
               if (isUnfollow) {
-                M.toast({html: `Artık bu kullanıcının yayınından bir haber kalacaksın..`, classes: 'rounded'})
+                M.toast({html: `Artık bu kullanıcıdan bildirim almayacaksın`, classes: 'rounded'})
+                $('#pulse').addClass('pulse')
               } else {
                 M.toast({html: `Süpeer, artık kullanıcının yüklediği dökümanları tarayıcı bildirimi olacak alabileceksin..`, classes: 'rounded'})
+                $('#pulse').removeClass('pulse')
               }
               let meta = await db.doc(`user/${user.uid}`).get().then(snap => snap.data()).catch(console.log)
 
@@ -141,22 +265,81 @@ $(document).ready(() => {
         method: 'POST',
         credentials: 'same-origin'
       })
+      .then(res => res.json())
+      .then(res => {
+        window.limit = res.limit
+      })
       if (window.location.pathname !== '/' && firebase.auth().currentUser === null) {
         setTimeout(function () {
           if (window.location.pathname.startsWith('/~')) {
             closeModalAndSuggestLogin("Bu özet işine yaradı mı 🧠, sende bu tarz özetleri oluşturabilir 💪 ve biz arkadaşlarına yardımcı olabilirsin 🤓")
           } else if (window.location.pathname.startsWith('/~')) {
             M.toast({html: `Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim özelliğini kullanabilirsin.`, classes: 'rounded'})
-            closeModalAndSuggestLogin()
+            closeModalAndSuggestLogin('Bu kişi yeni bir döküman / özet yayınladığında bildirim almak istersen giriş yaparak bildirim özelliğini kullanabilirsin.')
           } else {
-            closeModalAndSuggestLogin()
+            if (window.location.pathname.startsWith('/@')) {
+              var elem = $('.tap-profile').featureDiscovery();
+              $('#fab > a').addClass('pulse')
+              setTimeout(function () {
+                $('#fab > a').removeClass('pulse')
+                needPulse = false
+              }, 1000 * 10);
+            } else if (window.location.pathname.startsWith('/dokuman/')) {
+
+            } else {
+              closeModalAndSuggestLogin()
+            }
           }
         }, 5500);
+      } else if (window.location.pathname === '/') {
+        var elem = $('.tap-target').featureDiscovery();
+        var featureDiscovery = elem[0].M_FeatureDiscovery
+
+        $('#fab > a').addClass('pulse')
+        setTimeout(function () {
+          $('#fab > a').removeClass('pulse')
+          needPulse = false
+        }, 1000 * 10);
+
+        setTimeout(function () {
+          featureDiscovery.open()
+        }, 3000);
       }
     }
   })
 
   let doc;
+  let next = null
+
+  $(document).on('click', '.downloadButton', (e) => {
+    if (window.limit <= 0) {
+      e.preventDefault()
+      // closeModalAndSuggestLogin("Giriş yapmadan sadece tek bir döküman indirebilirsin 😉")
+      const elem = document.querySelector('#share');
+      const instance = new M.Modal.getInstance(elem);
+      instance.open()
+    } else {
+      fetch('/api/download', {
+        method: 'GET',
+        credentials: 'same-origin'
+      })
+      .then(res => res.json())
+      .then(res => {
+        window.limit = res.limit
+      })
+    }
+  })
+
+  $(document).on('click', '#share-buttons > a', (e) => {
+    fetch('/api/gain', {
+      method: 'GET',
+      credentials: 'same-origin'
+    })
+    .then(res => res.json())
+    .then(res => {
+      window.limit = res.limit
+    })
+  })
 
   $(document).on('click', '#uploadModal', () => {
     if (!firebase.auth().currentUser) {
@@ -214,7 +397,6 @@ $(document).ready(() => {
           let uploadStatus = pdfDocRef.putString(e.target.result, 'data_url')
 
           uploadStatus.then(function(snapshot) {
-            M.toast({html: `${theFile.name} başarıyla yüklendi.`, classes: 'rounded'});
 
             storageRef.child(date).getDownloadURL().then(function(url) {
               doc = {name: date, url, id: file, type: EXTENTION};
@@ -226,11 +408,17 @@ $(document).ready(() => {
             M.toast({html: `Yeni bir döküman yayınlama yetkiniz yok veya bir problem oldu :)`, classes: 'rounded'});
           })
 
-          uploadStatus.on('state_changed', function(snapshot){
+          let counter = 0
+          uploadStatus.on('state_changed', snapshot => {
               // Observe state change events such as progress, pause, and resume
               // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              counter++
               var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              M.toast({html: `Dökümanın %${progress.toFixed(2)} kadarı yüklendi.`, classes: 'rounded'});
+              if (counter % 5 === 0) {
+                M.toast({html: `Dökümanın %${progress.toFixed(2)} kadarı yüklendi.`, classes: 'rounded'});
+                counter = 0
+              }
+
               switch (snapshot.state) {
                 case firebase.storage.TaskState.PAUSED: // or 'paused'
                   M.toast({html: `Dökümanın %${Math.round(progress)}'si yüklenmişken durduruldu`, classes: 'rounded'});
@@ -300,15 +488,20 @@ $(document).ready(() => {
   $(document).on('click', '.editDoc', async () => {
     let title = $('#title').text()
     let description = $('#description').text()
+    let source = $('#source').text()
     $('#editTitle').val(title)
     $('#editDescription').val(description)
+    $('#editSource').val(source)
   })
 
   $(document).on('click', '.updateDocument', async () => {
     let title = $('#editTitle').val()
     let description = $('#editDescription').val()
+    let source = $('#editSource').val()
+    let keywords =  M.Chips.getInstance($('#editKeywords')[0].M_Chips.el);
+    keywords = keywords.getData()
     db.doc(`document/${document.location.pathname.split('/').pop()}`).update({
-      title, description
+      title, description, source, keywords
     })
     .then(() => {
       M.toast({html: `Dökümanı güncelledin!`, classes: 'rounded'});
@@ -323,6 +516,9 @@ $(document).ready(() => {
   $(document).on('click', '.publishDocument', async () => {
     const title = $('#title').val();
     const description = $('#description').val();
+    const source = $('#source').val();
+    let keywords = M.Chips.getInstance($('#keywords')[0].M_Chips.el);
+    keywords = keywords.getData()
     if (doc.length === 0) {
         M.toast({html: `Döküman yayınlamadan önce en az bir PDF yüklemelisiniz.`, classes: 'rounded'});
         return;
@@ -331,6 +527,9 @@ $(document).ready(() => {
       return;
     } else if (!description) {
       M.toast({html: `Döküman açıklamasını girmelisiniz.`, classes: 'rounded'});
+      return;
+    } else if (keywords.length === 0) {
+      M.toast({html: `Dökümana en az bir etiket girmelisiniz.`, classes: 'rounded'});
       return;
     } else {
       let slug = slugify(title, {
@@ -360,7 +559,6 @@ $(document).ready(() => {
         }).split(' ').join('')
       }
       M.toast({html: `Döküman başarıyla yayınlandı.`, classes: 'rounded'});
-      M.toast({html: `5 Saniye içerisinde dökümana yönlendirileceksiniz...`, classes: 'rounded'});
       db.doc(`document/${slug}`).set({
         title,
         description,
@@ -371,14 +569,16 @@ $(document).ready(() => {
         displayName,
         photoURL,
         userSlug,
+        source,
+        keywords,
         type: EXTENTION,
         hasProcessed: EXTENTION === 'pdf',
         hasPreview: false
-      });
+      }).then(_ => window.location = `/dokuman/${slug}`)
 
-      setTimeout(() => {
-        window.location = `/dokuman/${slug}`
-      }, 5000)
+      // setTimeout(() => {
+      //   window.location = `/dokuman/${slug}`
+      // }, 5000)
       doc = null;
       EXTENTION = null;
     }
@@ -583,4 +783,114 @@ $(document).ready(() => {
     // ...
   });
 
+  $('#fab').on('click', () => {
+    needPulse = false
+  })
+
+  if (window.location.pathname === '/' || window.location.pathname.startsWith('/@')) {
+
+    let isProfile = window.location.pathname.startsWith('/@')
+    let slug = $('.card').last().data('slug')
+    window.isInitialized = false
+    db.doc(`document/${slug}`).get().then(last => {
+      window.isInitialized = true
+      window.last = last
+    })
+
+    moment.locale('tr')
+
+    let isLoading = false
+    $(window).scroll(async () => {
+       if (($(window).scrollTop() >= $(document).height() - $(window).height() - 10) && !isLoading && window.isInitialized) {
+        isLoading = true
+        $('.shape-separator').slideToggle("slow")
+        let nextDocs
+        if (isProfile) {
+          let slug = window.location.pathname.split('/@')[1]
+          nextDocs = await db.collection('document')
+            .where('userSlug', '==', slug)
+            .orderBy('date', 'desc')
+            .startAfter(window.last)
+            .limit(12)
+            .get()
+        } else {
+          nextDocs = await db.collection('document')
+            .orderBy('date', 'desc')
+            .startAfter(window.last)
+            .limit(12)
+            .get()
+        }
+
+        window.last = nextDocs.docs[nextDocs.docs.length-1]
+        nextDocs = nextDocs.docs.map(doc => doc.data())
+        nextDocs.forEach(doc => {
+          $('#infinite-list').append(`
+            <div class="col s12 m3">
+              <div class="card hoverable" data-slug="${doc.slug}">
+               <a href="/dokuman/${doc.slug}">
+                  <div class="card-image"><img width="245" height="346" src="${doc.thumbnail.url}" alt="${filterXSS(doc.description)}" style="opacity:0.4;filter:blur(1px);">
+                  <span class="card-title truncateC" style="font-weight:300;filter: invert(100%);">${filterXSS(doc.title)}</span></div>
+                  <div class="card-action">
+                     <div class="chip truncate">
+                     <img src="${doc.photoURL}" alt="${filterXSS(doc.displayName)}">${filterXSS(doc.displayName)}</div>
+                     <div class="chip truncate">${moment(doc.date).fromNow()}</div>
+                  </div>
+               </a>
+               </div>
+            </div>
+            `)
+        })
+        isLoading = false
+        $('.shape-separator').slideToggle("slow")
+       }
+    });
+  }
+
+  if (window.location.pathname.startsWith('/kategori/')) {
+
+    let categorySlug = window.location.pathname.split('/kategori/')[1]
+    let slug = $('.card').last().data('slug')
+    window.isInitialized = false
+    db.doc(`category/${categorySlug}/document/${slug}`).get().then(last => {
+      window.isInitialized = true
+      window.last = last
+    })
+
+    moment.locale('tr')
+
+    let isLoading = false
+    $(window).scroll(async () => {
+       if (($(window).scrollTop() >= $(document).height() - $(window).height() - 10) && !isLoading && window.isInitialized) {
+        isLoading = true
+        $('.shape-separator').slideToggle("slow")
+        let nextDocs = await db.collection(`category/${categorySlug}/document`)
+          .orderBy('viewCount', 'desc')
+          .startAfter(window.last)
+          .limit(12)
+          .get()
+
+        window.last = nextDocs.docs[nextDocs.docs.length-1]
+        nextDocs = nextDocs.docs.map(doc => doc.data())
+        nextDocs.forEach(doc => {
+          $('#infinite-list').append(`
+            <div class="col s12 m3">
+              <div class="card hoverable" data-slug="${doc.slug}">
+               <a href="/dokuman/${doc.slug}">
+                  <div class="card-image"><img width="245" height="346" src="${doc.thumbnail.url}" alt="${filterXSS(doc.description)}" style="opacity:0.4;filter:blur(1px);">
+                  <span class="card-title truncateC" style="font-weight:300;filter: invert(100%);">${filterXSS(doc.title)}</span></div>
+                  <div class="card-action">
+                     <div class="chip truncate">
+                     <img src="${doc.photoURL}" alt="${filterXSS(doc.displayName)}">${filterXSS(doc.displayName)}</div>
+                     <div class="chip truncate">${moment(doc.date).fromNow()}</div>
+                  </div>
+               </a>
+               </div>
+            </div>
+            `)
+        })
+        isLoading = false
+        $('.shape-separator').slideToggle("slow")
+       }
+    });
+  }
 })

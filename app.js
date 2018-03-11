@@ -20,7 +20,6 @@ app.locals.moment = moment
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 
-// uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 app.use(logger('dev'))
 app.use(bodyParser.json())
@@ -55,13 +54,26 @@ async function verify (token) {
   }
 }
 
+app.use((req, res, next) => {
+  console.log('MIDDLEWARE', req.session.downloadLimit);
+  req.firebaseServer = firebase
+  if (req.session.first) {
+    req.session.first != req.session.first
+  } else {
+    req.session.first = true
+    // req.session.downloadLimit = 1
+  }
+  next()
+})
+
 app.post('/api/login', async (req, res) => {
   if (!req.body) return res.sendStatus(400)
 
   try {
     let decodedToken = await verify(req.body.token)
     req.session.decodedToken = decodedToken
-    res.json({ status: true, decodedToken })
+    req.session.downloadLimit = 1
+    res.json({ status: true, decodedToken, limit: req.session.downloadLimit })
   } catch (e) {
     res.json({ status: false, error: e })
   }
@@ -69,12 +81,31 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/logout', (req, res) => {
   req.session.decodedToken = null
-  res.json({ status: true })
+  // req.session.downloadLimit = req.session.downloadLimit || 10
+  console.log('LOGOUT', req.session.downloadLimit);
+  res.json({ status: true, limit: req.session.downloadLimit, message: 'I know you bro, you don\'t like limits but this isn\'t for you. You can bypass this easily. But who cares? I do not.' })
 })
 
-app.use((req, res, next) => {
-  req.firebaseServer = firebase
-  next()
+app.get('/api/download', (req, res) => {
+  if (req.session.decodedToken) {
+    res.json({ status: true, limit: req.session.downloadLimit, message: 'You are logged in, that\'s the point. You got this friend. Here\'s your document.' })
+  } else {
+    req.session.downloadLimit = --req.session.downloadLimit || 0
+    if (req.session.downloadLimit < 0) {
+      req.session.downloadLimit = 0
+    }
+    res.json({ status: true, limit: req.session.downloadLimit, message: 'I know you bro, you don\'t like limits but this isn\'t for you. You can bypass this easily. But who cares? I do not.' })
+  }
+})
+
+app.get('/api/gain', (req, res) => {
+  req.session.downloadLimit += 1
+  res.json({ status: true, limit: req.session.downloadLimit, message: 'I know you bro, you don\'t like limits but this isn\'t for you. You can bypass this easily. But who cares? I do not.' })
+})
+
+app.get('/api/limit', (req, res) => {
+  req.session.downloadLimit = req.session.downloadLimit || 0
+  res.json({ status: true, limit: req.session.downloadLimit })
 })
 
 app.use((req, res, next) => {

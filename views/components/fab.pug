@@ -1,12 +1,18 @@
+.tap-target.light-blue.lighten-3(data-target='fab-a')
+  .tap-target-content
+    h5.center-align(style="color: white") 👻 Selam! 👋
+    p(style="margin-left:15px;color: ghostwhite;") Umarım seni rahatsız etmiyorumdur, ders.im ücretsiz olarak ihtiyacın olan dökümanları sana en hızlı şekilde ulaştırmak için tasarlandı.
+    p(style="margin-left:15px;color: ghostwhite;") Giriş yaparak sende başkalarının ihtiyacı olan dökümanları yükleyebilir, başka kişilerin yayınlarından haberdar olabilirsin.
+
 #fab.fixed-action-btn
-  a.btn-floating.btn-large.red
+  a.btn-floating.btn-large.light-blue.lighten-1#fab-a
     i.large.material-icons attach_file
   ul.clearList
     li(style="list-style-type:none" alt="Özet oluştur")
       a.btn-floating.yellow.darken-1(href="/ozet")
         i.material-icons format_quote
     li(style="list-style-type:none" alt="Döküman yükle")
-      a.btn-floating.blue.modal-trigger.modalLink(href="#uploadModal")
+      a.btn-floating.blue.modal-trigger.modalLink#uploadModalTrigger(href="#uploadModal")
         i.material-icons attach_file
     li(style="list-style-type:none" alt="Bildirimleri aç")
       a.btn-floating.green.modal-trigger.notifications

@@ -1,7 +1,7 @@
 #uploadModal.modal.modal-fixed-footer
   .modal-content
     h4 Ders Dökümanı Paylaş
-    p Yeni bir döküman yayınlamaya karar verdin dostum, katkın için teşekkür ederiz.
+    p Yeni bir döküman yayınlamaya karar verdin, katkın için teşekkür ederiz.
     .row
       form.col.s12
         .row
@@ -12,6 +12,17 @@
           .input-field.col.s12
             input#description.validate(placeholder='Döküman açıklamanız', type='text' required="true")
             label(for='description') Açıklama
+        .row
+          .input-field.col.s12
+            input#source(placeholder='Döküman size ait değil ise lütfen kaynağın web adresini yazın', type='text')
+            label(for='description') Kaynakça
+        .row
+          label(for='description' style="margin-left:16px") Anahtar Kelimeler
+            br
+            i(style="margin-left:16px")  Alakalı etiketler kullanmak dökümanınızı aramalarda öne çıkartır. (En fazla üç adet)
+          .col.s12
+            .chips.chips-autocomplete#keywords
+
         .row
           .input-field.col.s12
             .file-field.input-field
@@ -25,6 +36,6 @@
             
 
   .modal-footer
-      a.waves-effect.waves-blue.btn.modal-action.modal-close.disabled.publishDocument
+      a.waves-effect.waves-blue.btn.modal-action.disabled.publishDocument
         i.material-icons.right done_all
         | Yayınla

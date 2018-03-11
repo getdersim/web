@@ -6,6 +6,7 @@ html(lang='tr')
     block head
       title Ders.im
       // Schema.org for Google
+    meta(name="google-site-verification" content="aTBvv12LSGN0AjYUbYfuoZ5neuFkA5bs-bK2j6Fpw6Q")
     meta(name='apple-mobile-web-app-capable', content='yes')
     meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
     meta(name='apple-mobile-web-app-status-bar-style', content='#29b6f6')
@@ -25,6 +26,7 @@ html(lang='tr')
     link(href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css', rel='stylesheet')
     link(href='/stylesheets/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
     link(href='/stylesheets/style.css', type='text/css', rel='stylesheet', media='screen,projection')
+    script(src="https://cdn.rawgit.com/leizongmin/js-xss/master/dist/xss.js")
       
   body
     block content
@@ -41,9 +43,17 @@ html(lang='tr')
     script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.2/firebase.js')
     script(type='text/javascript', src='//www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js')
     script(type='text/javascript', src='/javascripts/jquery-3.2.1.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js')
     script(type='text/javascript', src='/javascripts/materialize.js')
     script(type='text/javascript', src='/javascripts/instantsearch.min.js')
     script(type='text/javascript', src='/javascripts/init.js')
+    script(async="" src="https://www.googletagmanager.com/gtag/js?id=UA-51610871-4")
+    script.
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-51610871-4');
+
     block javascripts
     
   include components/upload.pug

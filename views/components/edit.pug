@@ -8,12 +8,23 @@
         .row
           .input-field.col.s12
             input#editTitle.validate(placeholder='Döküman başlığınız', type='text' required="true" minlength=10 data-length="50")
-            label(for='title') Başlık
+            label(for='editTitle') Başlık
         .row
           .input-field.col.s12
             input#editDescription.materialize-textarea.validate(placeholder='Döküman açıklamanız' type='text' minlength=10 required="true" data-length="100")
-            label(for='description') Açıklama
-            
+            label(for='editDescription') Açıklama
+        .row
+          .input-field.col.s12
+            input#editSource(placeholder='Döküman size ait değil ise lütfen kaynağın web adresini yazın', type='text')
+            label(for='editSource') Kaynakça
+        if isOwner
+          .row
+            label(for='description' style="margin-left:16px") Anahtar Kelimeler
+              br
+              i(style="margin-left:16px")  Alakalı etiketler kullanmak dökümanınızı aramalarda öne çıkartır. (En fazla üç adet)
+            .col.s12
+              .chips.chips-autocomplete#editKeywords  
+
   .modal-footer
       a.waves-effect.waves-blue.btn.modal-action.modal-close.updateDocument(id="data-id")
         i.material-icons.right done_all

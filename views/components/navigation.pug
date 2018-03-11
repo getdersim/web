@@ -21,3 +21,6 @@ nav.nav-extended.light-blue.lighten-1(role='navigation')
             a.active(href='#doc') Dökümanlar
           li.tab
             a(href='#syllabus') Özetler
+          each category in categories    
+            li.link
+              a(href='/kategori/'+category.slug) #{category.title}

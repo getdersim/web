@@ -7,6 +7,7 @@ block head
   meta(itemprop='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
   meta(property='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
   meta(name='description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
+  meta(name="keywords" content="ders notları, çalışma notları, ders çalışma dökümanı, ders notu, mühendislik notu, bilgisayar mühendisliği, dersim," + profile.displayName + 'nın ders notları')
   meta(property='image', itemprop='image', content=profile.photoURL)
   meta(name='image', itemprop='image', content=profile.photoURL)
   meta(property='twitter:card', content='summary_large_image')
@@ -17,7 +18,7 @@ block head
   meta(name='twitter:image', content=profile.photoURL)
   meta(property='og:title', content="Ders.im | " + profile.displayName)
   meta(property='og:description', content=profile.displayName + ' https://ders.im\'de eğitim materyallerini paylaşıyor.')
-  meta(property='og:image', content=urunler[0].photoURL)
+  meta(property='og:image', content=profile.photoURL)
   meta(property='og:image:alt', content=profile.photoURL)
   meta(property='og:url', content='https://ders.im/@'+profile.slug)
   meta(property='og:site_name', content='https://ders.im')
@@ -31,27 +32,29 @@ block content
       a(href="/@"+profile.slug)
         img.circle.hoverable(src=profile.photoURL style="width:50px")
       h1(style="font-size:2.3em;margin-left:10px;color:rgba(38, 50, 56, 0.77);margin-top: 20px;") #{profile.displayName}'nın profili
-    .row
+    if !docs || docs.length === 0
+      h2 Malesef henüz döküman yüklememiş. 🤯
+    else  
+    .row#infinite-list
       each doc in docs
         if doc.hasPreview == true
-          .col.s12.m4
-            .card.z-depth-3.medium.sticky-action
-              .card-image.waves-effect.waves-block.waves-blue
-                img.activator(src=doc.thumbnail.url alt=doc.description)
-              .card-content
-                h2.card-title.activator.grey-text.text-darken-4(style="margin-top:-15px")
-                  | #{doc.title}
-                  i.material-icons.right more_vert
-              .card-reveal
-                span.card-title.grey-text.text-darken-4
-                  | #{doc.title}
-                  i.material-icons.right close
-                p
-                  | #{doc.description}
-              .card-action(style="display:flex")
-                a(href='/dokuman/' + doc.slug) Detayına git...    
+          .col.s12.m3
+            .card.hoverable(data-slug=doc.slug)
+              a(href='/dokuman/' + doc.slug)
+                .card-image
+                  img(width=245 height=346 src=doc.thumbnail.url alt=doc.description style="opacity:0.4;filter:blur(1px)")
+                  span.card-title.truncateC(style="font-weight:300;filter: invert(100%);") #{doc.title}
+                .card-action
+                  .chip.truncate
+                    img(src=doc.photoURL, alt=doc.displayName)
+                    |     #{doc.displayName}
+                  .chip.truncate #{moment(doc.date).fromNow()}
+    .shape-separator(display="none")                
     include components/login.pug
     include components/settings.pug
-    #fab.fixed-action-btn.enableNotifications(uid=profile.uid)
-      a.btn-floating.btn-large.green
-        i.large.material-icons.notificationIcon notifications
+    if !isOwner
+      #fab.fixed-action-btn.enableNotifications(uid=profile.uid)
+        a.btn-floating.btn-large.green#pulse
+          i.large.material-icons.notificationIcon notifications
+block javascripts
+  script(type='text/javascript', src='/javascripts/moment.js')         

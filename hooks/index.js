@@ -1,3 +1,4 @@
+/* eslint-disable */
 // This file contains firestore hooks.
 const puppeteer = require('puppeteer')
 const firebase = require('../firebase')
@@ -7,7 +8,6 @@ const bucket = firebase.storage().bucket('getdersim-media')
 const { promisify } = require('util')
 const writeFile = promisify(fs.writeFile)
 const P = require('./docToPdf')
-
 // Generate gif from given pdf url
 const generateGIF = url => {
   return new Promise(async (resolve, reject) => {
@@ -133,7 +133,8 @@ const process = (docs, i = 0) => {
         hasPreview: true,
         hasProcessed: true,
         text,
-        doc: null
+        doc: null,
+        verified: false
       })
       let {id, name, type} = doc.doc
       await db.doc(`pdf/${doc.slug}`).set({
