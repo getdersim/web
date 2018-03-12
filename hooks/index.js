@@ -8,6 +8,7 @@ const bucket = firebase.storage().bucket('getdersim-media')
 const { promisify } = require('util')
 const writeFile = promisify(fs.writeFile)
 const P = require('./docToPdf')
+const {send} = require('./telegram');
 // Generate gif from given pdf url
 const generateGIF = url => {
   return new Promise(async (resolve, reject) => {
@@ -140,6 +141,8 @@ const process = (docs, i = 0) => {
       await db.doc(`pdf/${doc.slug}`).set({
         id, name, url, originalFile, type
       })
+      // Telegram send..
+      send(doc.slug)
       i++
       if (docs.length > i) {
         await process(docs, i)
@@ -156,13 +159,19 @@ const removeContent = id => {
   bucket.file(id).delete().then(() => console.log('Uploaded content deleted.')).catch(err => console.log(err))
 }
 
+// Döküman yüklendikten sonra kategori işlemi için verified olmasını bekle.
 db.collection('document')
   .onSnapshot(async snapshot => {
+    // snapshot.doc.hasLocalMutations
     console.log('d0ru mu bu?')
     let toBeUpdated = []
     toBeUpdated = snapshot.docChanges.map(change => {
       let data = change.doc.data()
       if ((change.type === 'added' || change.type === 'modified') && (!data.gif && !data.thumbnail)) {
+        // Eğer veri ilk defa yükleniyorsa yani daha gif ve thumbnail yok ise bu işlemi gerçekleştir.
+        // if (data.verified) {
+        //   categoryInitializer(data.slug)
+        // }
         return data
       } else if (change.type === 'removed') {
         try {
@@ -172,7 +181,12 @@ db.collection('document')
         } catch (e) {
           console.log(e)
         }
-      }
+      // TODO @cagataycali bunu kaldır.
+    }
+    // else if (data.gif && data.thumbnail && data.keywords && data.keywords.length > 0 && !data.verified) {
+    //     console.log('kategori işleniyor....');
+    //     categoryInitializer(data.slug)
+    //   }
     })
     toBeUpdated = toBeUpdated.filter(n => n)
 

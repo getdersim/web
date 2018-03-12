@@ -29,6 +29,7 @@
     "request-promise": "^4.2.2",
     "serve-favicon": "~2.4.5",
     "session-file-store": "^1.2.0",
-    "slugify": "^1.2.6"
+    "slugify": "^1.2.6",
+    "telegraf": "^3.19.0"
   }
 }
